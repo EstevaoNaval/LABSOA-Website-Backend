@@ -38,7 +38,6 @@ class BingoSearch(Func):
 
 class BingoSimilaritySearch(BingoSearch):
     function = 'bingo.sim'
-    output_field = BooleanField()
 
     def __init__(self, expression, bottom, top, query, metric, **extra):
         self.__validate_input(bottom, top, query, metric)

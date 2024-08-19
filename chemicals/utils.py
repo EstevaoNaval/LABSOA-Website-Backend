@@ -67,9 +67,15 @@ def is_valid_smarts(query: str):
     
     return True
 
+def is_valid_api_id(query: str):
+    return True if re.match(r'^LSOA[0-9]{10}$', query) else False
+
 def detect_representation(query: str):
+    
     if is_valid_smiles(query):
         return 'smiles'
+    elif is_valid_api_id(query):
+        return 'api_id'
     elif is_valid_inchi(query):
         return 'inchi'
     elif is_valid_inchikey(query):

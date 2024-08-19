@@ -135,19 +135,19 @@ class Command(BaseCommand):
                         pharmacokinetics, is_pharmacokinetics_created = Pharmacokinetics.objects.update_or_create(
                             chemical=chemical,
                             defaults={
-                                'gastrointestinal_absorption': row.get('gi_absorption'),
-                                'blood_brain_barrier_permeation': row.get('bbb_permeant')
+                                'gastrointestinal_absorption': int(row.get('gi_absorption')),
+                                'blood_brain_barrier_permeation': int(row.get('bbb_permeant'))
                             }
                         )
                         
                         p450_inhibition, is_p450_inhibition_created = P450Inhibition.objects.update_or_create(
                             chemical=chemical,
                             defaults={
-                                'cyp1a2_inhibitor': row.get('cyp1a2_inhibitor'),
-                                'cyp2c9_inhibitor': row.get('cyp2c9_inhibitor'),
-                                'cyp2c19_inhibitor': row.get('cyp2c19_inhibitor'),
-                                'cyp2d6_inhibitor': row.get('cyp2d6_inhibitor'),
-                                'cyp3a4_inhibitor': row.get('cyp3a4_inhibitor')
+                                'cyp1a2_inhibitor': int(row.get('cyp1a2_inhibitor')),
+                                'cyp2c9_inhibitor': int(row.get('cyp2c9_inhibitor')),
+                                'cyp2c19_inhibitor': int(row.get('cyp2c19_inhibitor')),
+                                'cyp2d6_inhibitor': int(row.get('cyp2d6_inhibitor')),
+                                'cyp3a4_inhibitor': int(row.get('cyp3a4_inhibitor'))
                             }
                         )
                         
@@ -162,9 +162,9 @@ class Command(BaseCommand):
                         toxicity_prediction, is_toxicity_prediction_created = ToxicityPrediction.objects.update_or_create(
                             chemical=chemical,
                             defaults={
-                                'cardiotoxicity_prediction': row.get('cardiotoxicity_prediction'),
-                                'hepatotoxicity_prediction': row.get('hepatotoxicity_prediction'),
-                                'ames_mutagenesis_prediction': row.get('ames_mutagenesis_prediction')
+                                'cardiotoxicity_prediction': int(row.get('cardiotoxicity_prediction')),
+                                'hepatotoxicity_prediction': int(row.get('hepatotoxicity_prediction')),
+                                'ames_mutagenesis_prediction': int(row.get('ames_mutagenesis_prediction'))
                             }
                         )
                         

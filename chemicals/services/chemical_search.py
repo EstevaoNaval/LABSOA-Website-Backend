@@ -25,6 +25,10 @@ class ChemicalSubstructureSearch(ABC):
     def substructure_search(query: str, queryset: BaseManager[Chemical], **parameters: dict) -> BaseManager[Chemical]:
         pass
 
+class ChemicalAPIIdSearch(ChemicalExactSearch):
+    def exact_search(query, queryset, **parameters):
+        return queryset.filter(api_id=query)
+
 class ChemicalInchiSearch(ChemicalExactSearch):
     def exact_search(query, queryset, **parameters):
         return queryset.filter(identifiers__inchi=query)

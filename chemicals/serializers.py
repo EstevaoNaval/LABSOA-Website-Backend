@@ -72,23 +72,159 @@ class ConformationSerializer(serializers.ModelSerializer):
         exclude=['id','created_at','update_at', 'chemical']
         
 class ChemicalSerializer(serializers.ModelSerializer):
-    identifier = IdentifierSerializer(source='identifiers')
-    literature = LiteratureSerializer()
-    physical_property = PhysicalPropertySerializer(source='physical_properties')
-    physicochemical_property = PhysicochemicalPropertySerializer(source='physicochemical_properties')
-    partition_coefficient = PartitionCoefficientSerializer(source='partition_coefficients')
-    solubility = SolubilitySerializer(source='solubilities')
-    qsar_score = QsarScoreSerializer(source='qsar_scores')
-    druglike_rule = DrugLikeRuleSerializer(source='druglike_rules')
-    pharmacokinetics = PharmacokineticsSerializer()
-    p450_inhibition = P450InhibitionSerializer(source='p450_inhibitors')
-    undesirable_substructure_alert = UndesirableSubstructureAlertSerializer(source='undesirable_substructure_alerts')
-    toxicity_prediction = ToxicityPredictionSerializer(source='toxicity_predictions')
+    literature = LiteratureSerializer(required=False)
+    identifier = IdentifierSerializer(source='identifiers', required=False)
+    physical_property = PhysicalPropertySerializer(source='physical_properties', required=False)
+    physicochemical_property = PhysicochemicalPropertySerializer(source='physicochemical_properties', required=False)
+    partition_coefficient = PartitionCoefficientSerializer(source='partition_coefficients', required=False)
+    solubility = SolubilitySerializer(source='solubilities', required=False)
+    qsar_score = QsarScoreSerializer(source='qsar_scores', required=False)
+    druglike_rule = DrugLikeRuleSerializer(source='druglike_rules', required=False)
+    pharmacokinetics = PharmacokineticsSerializer(required=False)
+    p450_inhibition = P450InhibitionSerializer(source='p450_inhibitors', required=False)
+    undesirable_substructure_alert = UndesirableSubstructureAlertSerializer(source='undesirable_substructure_alerts', required=False)
+    toxicity_prediction = ToxicityPredictionSerializer(source='toxicity_predictions', required=False)
     synonym = SynonymSerializer(many=True, required=False, source='synonyms')
-    conformation = ConformationSerializer(many=True, source='conformations')
+    conformation = ConformationSerializer(many=True, required=False, source='conformations')
     
     def update(self, instance, validated_data):
-        return super().update(instance, validated_data)
+        validated_data.pop('api_id', None)
+        
+        instance.chem_depiction_image = validated_data.get('chem_depiction_image', instance.chem_depiction_image)
+        
+        instance.save()
+        
+        literature_data = validated_data.pop('literature', None)
+        if literature_data is not None:
+            literature_api_id = instance.literature.api_id
+            
+            Literature.objects.update_or_create(
+                api_id=literature_api_id,
+                defaults=literature_data
+            )
+        
+        identifier_data = validated_data.pop('identifiers', None)
+        if identifier_data is not None:
+            identifier_api_id = instance.identifiers.api_id
+            
+            Identifier.objects.update_or_create(
+                api_id=identifier_api_id, 
+                chemical=instance, 
+                defaults=identifier_data
+            )
+        
+        physical_property_data = validated_data.pop('physical_properties', None)
+        if physical_property_data is not None:
+            physical_property_api_id = instance.physical_properties.api_id
+            
+            PhysicalProperty.objects.update_or_create(
+                api_id = physical_property_api_id,
+                chemical=instance,
+                defaults=physical_property_data
+            )
+        
+        physicochemical_property_data = validated_data.pop('physicochemical_properties', None)
+        if physicochemical_property_data is not None:
+            physicochemical_property_api_id = instance.physicochemical_properties.api_id
+            
+            PhysicochemicalProperty.objects.update_or_create(
+                api_id = physicochemical_property_api_id,
+                chemical=instance,
+                defaults=physicochemical_property_data
+            )
+        
+        partition_coefficient_data = validated_data.pop('partition_coefficients', None)
+        if partition_coefficient_data is not None:
+            partition_coefficient_api_id = instance.partition_coefficients.api_id
+            
+            PartitionCoefficient.objects.update_or_create(
+                api_id = partition_coefficient_api_id,
+                chemical = instance,
+                defaults=partition_coefficient_data
+            )
+            
+        solubility_data = validated_data.pop('solubilities', None)
+        if solubility_data is not None:
+            solubility_api_id = instance.solubilities.api_id
+            
+            Solubility.objects.update_or_create(
+                api_id = solubility_api_id,
+                chemical = instance,
+                defaults= solubility_data
+            )
+        
+        qsar_score_data = validated_data.pop('qsar_scores', None)
+        if qsar_score_data is not None:
+            qsar_score_api_id = instance.qsar_scores.api_id
+            
+            QsarScore.objects.update_or_create(
+                api_id = qsar_score_api_id,
+                chemical = instance,
+                defaults = qsar_score_data
+            )
+            
+        druglike_rule_data = validated_data.pop('druglike_rules', None)
+        if druglike_rule_data is not None:
+            druglike_rule_api_id = instance.druglike_rules.api_id
+            
+            DrugLikeRule.objects.update_or_create(
+                api_id = druglike_rule_api_id,
+                chemical = instance,
+                defaults = druglike_rule_data
+            )
+        
+        pharmacokinetics_data = validated_data.pop('pharmacokinetics', None)
+        if pharmacokinetics_data is not None:
+            pharmacokinetics_api_id = instance.pharmacokinetics.api_id
+            
+            Pharmacokinetics.objects.update_or_create(
+                api_id = pharmacokinetics_api_id,
+                chemical = instance,
+                defaults = pharmacokinetics_data
+            )
+        
+        p450_inhibition_data = validated_data.pop('p450_inhibitors', None)
+        if p450_inhibition_data is not None:
+            p450_inhibition_api_id = instance.p450_inhibitors.api_id
+            
+            P450Inhibition.objects.update_or_create(
+                api_id = p450_inhibition_api_id,
+                chemical = instance,
+                defaults = p450_inhibition_data
+            )
+        
+        undesirable_substructure_alert_data = validated_data.pop('undesirable_substructure_alerts', None)
+        if undesirable_substructure_alert_data is not None:
+            undesirable_substructure_alert_api_id = instance.undesirable_substructure_alerts.api_id
+            
+            UndesirableSubstructureAlert.objects.update_or_create(
+                api_id = undesirable_substructure_alert_api_id,
+                chemical = instance,
+                defaults = undesirable_substructure_alert_data
+            )
+        
+        toxicity_prediction_data = validated_data.pop('toxicity_predictions', None)
+        if toxicity_prediction_data is not None:
+            toxicity_prediction_api_id = instance.toxicity_predictions.api_id
+            
+            ToxicityPrediction.objects.update_or_create(
+                api_id = toxicity_prediction_api_id,
+                chemical = instance,
+                defaults = toxicity_prediction_data
+            )
+        
+        synonyms_data = validated_data.pop('synonyms', None)
+        if synonyms_data:
+            for synonym_data in synonyms_data:
+                synonym_api_id = synonym_data.get('api_id')
+                
+                Synonym.objects.update_or_create(
+                    api_id = synonym_api_id,
+                    chemical = instance,
+                    defaults = synonym_data
+                )
+        
+        return instance
     
     class Meta:
         model = Chemical

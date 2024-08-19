@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from chemicals.models import Chemical
 from .serializers import ChemicalAutocompleteSerializer, ChemicalSerializer
 from .models import Chemical
@@ -9,6 +11,7 @@ from .services.chemical_search import (
     ChemicalFormulaSearch,
     ChemicalInchiKeySearch,
     ChemicalInchiSearch,
+    ChemicalAPIIdSearch
 )
 from .services.chemical_search_context import (
     ChemicalSimilaritySearchContext, 
@@ -19,9 +22,10 @@ from .services.chemical_search_context import (
 from rest_framework import viewsets, permissions, filters
 from rest_framework.generics import ListAPIView
 
+CACHE_TTL = 60 * 60 * 6 # 6 horas
 
 class ChemicalAdvancedSearchView(ListAPIView):
-    pass
+    serializer_class = ChemicalSerializer
 
 class ChemicalSimpleSearchView(ListAPIView):
     serializer_class = ChemicalSerializer
@@ -40,6 +44,9 @@ class ChemicalSimpleSearchView(ListAPIView):
             
             if chem_type_repr == 'smiles':
                 exact_search_context.set_chemical_exact_search(ChemicalSMILESSearch)
+                queryset = exact_search_context.exact_search(query, queryset)
+            elif chem_type_repr == 'api_id':
+                exact_search_context.set_chemical_exact_search(ChemicalAPIIdSearch)
                 queryset = exact_search_context.exact_search(query, queryset)
             elif chem_type_repr == 'inchi':
                 exact_search_context.set_chemical_exact_search(ChemicalInchiSearch)
@@ -98,6 +105,15 @@ class ChemicalReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     ordering_fields = ['api_id']
     ordering = ['api_id']
     permission_classes = [permissions.AllowAny]
+    
+    @method_decorator(cache_page(CACHE_TTL))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @method_decorator(cache_page(CACHE_TTL))
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
     
 class ChemicalAdminViewSet(viewsets.ModelViewSet):
     queryset = Chemical.objects.all()
