@@ -15,7 +15,7 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
-class HashIdBaseModel(BaseModel):
+class HashAPIIdBaseModel(BaseModel):
     api_id = models.CharField(max_length=14, unique=True)
     
     class Meta:
@@ -43,7 +43,7 @@ class HashIdBaseModel(BaseModel):
         
         return unique_id
 
-class Literature(HashIdBaseModel):
+class Literature(HashAPIIdBaseModel):
     doi = models.CharField(unique=True)
     title = models.TextField()
     publication_date = models.DateField()
@@ -69,7 +69,7 @@ class Chemical(BaseModel):
             if not Chemical.objects.filter(api_id=api_id).exists():
                 return api_id
 
-class Identifier(HashIdBaseModel):
+class Identifier(HashAPIIdBaseModel):
     iupac_name = models.TextField()
     chem_formula = models.TextField()
     inchi = models.TextField()
@@ -91,7 +91,7 @@ class Identifier(HashIdBaseModel):
         
         super().save(*args, **kwargs)
     
-class PhysicalProperty(HashIdBaseModel):
+class PhysicalProperty(HashAPIIdBaseModel):
     molecular_weight = models.FloatField()
     volume = models.FloatField()
     density = models.FloatField()
@@ -111,31 +111,31 @@ class PhysicalProperty(HashIdBaseModel):
     color_hexadecimal = models.CharField(validators=[validate_hex_color], blank=True)
     chemical = models.OneToOneField(to=Chemical, on_delete=models.CASCADE, related_name='physical_properties')
 
-class PhysicochemicalProperty(HashIdBaseModel):
+class PhysicochemicalProperty(HashAPIIdBaseModel):
     fraction_csp3 = models.FloatField()
     molar_refractivity = models.FloatField()
     tpsa = models.FloatField()
     chemical = models.OneToOneField(to=Chemical, on_delete=models.CASCADE, related_name='physicochemical_properties')
 
-class PartitionCoefficient(HashIdBaseModel):
+class PartitionCoefficient(HashAPIIdBaseModel):
     wildman_crippen_logp = models.FloatField()
     xlogp = models.FloatField()
     jplogp = models.FloatField()
     mouriguchi_logp = models.FloatField()
     chemical = models.OneToOneField(to=Chemical, on_delete=models.CASCADE, related_name='partition_coefficients')
 
-class Solubility(HashIdBaseModel):
+class Solubility(HashAPIIdBaseModel):
     esol_logs = models.FloatField()
     filter_it_logs = models.FloatField()
     chemical = models.OneToOneField(to=Chemical, on_delete=models.CASCADE, related_name='solubilities')
     
-class QsarScore(HashIdBaseModel):
+class QsarScore(HashAPIIdBaseModel):
     qed_score = models.FloatField()
     synthetic_accessibility_score = models.FloatField()
     natural_product_score = models.FloatField()
     chemical = models.OneToOneField(to=Chemical, on_delete=models.CASCADE,related_name='qsar_scores')
 
-class DrugLikeRule(HashIdBaseModel):
+class DrugLikeRule(HashAPIIdBaseModel):
     count_lipinski_violation = models.PositiveSmallIntegerField()
     count_ghose_violation = models.PositiveSmallIntegerField()
     count_veber_violation = models.PositiveSmallIntegerField()
@@ -143,12 +143,12 @@ class DrugLikeRule(HashIdBaseModel):
     count_muegge_violation = models.PositiveSmallIntegerField()
     chemical = models.OneToOneField(to=Chemical, on_delete=models.CASCADE, related_name='druglike_rules')
 
-class Pharmacokinetics(HashIdBaseModel):
+class Pharmacokinetics(HashAPIIdBaseModel):
     gastrointestinal_absorption = models.BooleanField()
     blood_brain_barrier_permeation = models.BooleanField()
     chemical = models.OneToOneField(to=Chemical, on_delete=models.CASCADE, related_name='pharmacokinetics')
     
-class P450Inhibition(HashIdBaseModel):
+class P450Inhibition(HashAPIIdBaseModel):
     cyp1a2_inhibitor = models.BooleanField()
     cyp2c9_inhibitor = models.BooleanField()
     cyp2c19_inhibitor = models.BooleanField()
@@ -156,22 +156,22 @@ class P450Inhibition(HashIdBaseModel):
     cyp3a4_inhibitor = models.BooleanField()
     chemical = models.OneToOneField(to=Chemical, on_delete=models.CASCADE, related_name='p450_inhibitors')
 
-class UndesirableSubstructureAlert(HashIdBaseModel):
+class UndesirableSubstructureAlert(HashAPIIdBaseModel):
     count_pains_alert = models.PositiveSmallIntegerField()
     count_brenk_alert = models.PositiveSmallIntegerField()
     chemical = models.OneToOneField(to=Chemical, on_delete=models.CASCADE, related_name='undesirable_substructure_alerts')
 
-class ToxicityPrediction(HashIdBaseModel):
+class ToxicityPrediction(HashAPIIdBaseModel):
     cardiotoxicity_prediction = models.BooleanField()
     hepatotoxicity_prediction = models.BooleanField()
     ames_mutagenesis_prediction = models.BooleanField()
     chemical = models.OneToOneField(to=Chemical, on_delete=models.CASCADE, related_name='toxicity_predictions')
 
-class Synonym(HashIdBaseModel):
+class Synonym(HashAPIIdBaseModel):
     name = models.TextField()
     chemical = models.ForeignKey(to=Chemical, on_delete=models.CASCADE, related_name='synonyms')
 
-class Conformation(HashIdBaseModel):
+class Conformation(HashAPIIdBaseModel):
     conf_file = models.FileField(upload_to='confs/')
     chemical = models.ForeignKey(to=Chemical, on_delete=models.CASCADE, related_name='conformations')
 

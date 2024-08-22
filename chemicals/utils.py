@@ -8,84 +8,94 @@ from random import choices
 from string import digits
 from django.core.exceptions import ValidationError
 
-def contains_atomic_number(smiles):
-    atomic_number_pattern = r'\[#\d+\]'
+class RepresentationDetector:
+    @staticmethod
+    def detect_type(value):
+        if RepresentationDetector._is_valid_smiles(value):
+            return 'smiles'
+        elif RepresentationDetector._is_valid_api_id(value):
+            return 'api_id'
+        elif RepresentationDetector._is_valid_inchi(value):
+            return 'inchi'
+        elif RepresentationDetector._is_valid_inchikey(value):
+            return 'inchi_key'
+        elif RepresentationDetector._is_valid_chemical_formula(value):
+            return 'formula'
+        elif RepresentationDetector._is_valid_smarts(value):
+            return 'smarts'
+        else:
+            return 'fulltext'
     
-    if re.search(atomic_number_pattern, smiles):
-        return True
-    return False
+    @staticmethod
+    def _contains_atomic_number(smiles):
+        atomic_number_pattern = r'\[#\d+\]'
 
-def rdkit_mol_from_smiles_can_generate_confs(rdkit_mol) -> bool:
-    try:
-        rdBase.LogToPythonStderr()
+        if re.search(atomic_number_pattern, smiles):
+            return True
         
-        rdkit_mol = Chem.AddHs(rdkit_mol)
-
-        with StringIO() as buf:
-            with redirect_stderr(buf):
-                AllChem.EmbedMolecule(rdkit_mol)
-                error_str_log = buf.getvalue()
-
-        num_confomartions = rdkit_mol.GetNumConformers()
-        
-        return True if num_confomartions > 0 and not error_str_log else False
-    except:
         return False
 
-def is_valid_smiles(smiles: str) -> bool:
-    mol = Chem.MolFromSmiles(smiles)
-    
-    if contains_atomic_number(smiles):
-        return False
-    
-    if mol == None:
-        return False
-    
-    if not rdkit_mol_from_smiles_can_generate_confs(mol):
-        return False
-    
-    return True
+    @staticmethod
+    def _rdkit_mol_from_smiles_can_generate_confs(rdkit_mol) -> bool:
+        try:
+            rdBase.LogToPythonStderr()
 
-def is_valid_inchi(query: str):
-    return True if Chem.inchi.MolFromInchi(query, sanitize=True) else False
+            rdkit_mol = Chem.AddHs(rdkit_mol)
 
-def is_valid_inchikey(query: str):
-    return True if re.match(r'^[A-Z]{14}-[A-Z]{10}-[A-Z]$', query) is not None else False
+            with StringIO() as buf:
+                with redirect_stderr(buf):
+                    AllChem.EmbedMolecule(rdkit_mol)
+                    error_str_log = buf.getvalue()
 
-def is_valid_chemical_formula(query: str):
-    try:
-        substance = Substance.from_formula(query)
+            num_confomartions = rdkit_mol.GetNumConformers()
+
+            return True if num_confomartions > 0 and not error_str_log else False
+        except:
+            return False
+
+    @staticmethod
+    def _is_valid_smiles(smiles: str) -> bool:
+        mol = Chem.MolFromSmiles(smiles)
+
+        if RepresentationDetector._contains_atomic_number(smiles):
+            return False
+
+        if mol == None:
+            return False
+
+        if not RepresentationDetector._rdkit_mol_from_smiles_can_generate_confs(mol):
+            return False
+
         return True
-    except Exception:
-        return False
 
-def is_valid_smarts(query: str):
-    mol = Chem.MolFromSmarts(query)
-    
-    if mol == None:
-        return False
-    
-    return True
+    @staticmethod
+    def _is_valid_inchi(query: str):
+        return True if Chem.inchi.MolFromInchi(query, sanitize=True) else False
 
-def is_valid_api_id(query: str):
-    return True if re.match(r'^LSOA[0-9]{10}$', query) else False
+    @staticmethod
+    def _is_valid_inchikey(query: str):
+        return True if re.match(r'^[A-Z]{14}-[A-Z]{10}-[A-Z]$', query) is not None else False
 
-def detect_representation(query: str):
-    
-    if is_valid_smiles(query):
-        return 'smiles'
-    elif is_valid_api_id(query):
-        return 'api_id'
-    elif is_valid_inchi(query):
-        return 'inchi'
-    elif is_valid_inchikey(query):
-        return 'inchi_key'
-    elif is_valid_chemical_formula(query):
-        return 'formula'
-    elif is_valid_smarts(query):
-        return 'smarts'
-    else:
-        return 'fulltext'
+    @staticmethod
+    def _is_valid_chemical_formula(query: str):
+        try:
+            substance = Substance.from_formula(query)
+            return True
+        except Exception:
+            return False
+
+    @staticmethod
+    def _is_valid_smarts(query: str):
+        mol = Chem.MolFromSmarts(query)
+
+        if mol == None:
+            return False
+
+        return True
+
+    @staticmethod
+    def _is_valid_api_id(query: str):
+        return True if re.match(r'^LSOA[0-9]{10}$', query) else False
     
 def generate_random_sequence(length=10):
     return ''.join(choices(digits, k=length))
