@@ -3,14 +3,16 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     ChemicalReadOnlyViewSet, 
     ChemicalAdminViewSet, 
-    AutocompleteSearchView, 
+    AutocompleteSearchView,
+    ChemicalSummaryReadOnlyViewSet, 
     ChemicalSimpleSearchView,
     ChemicalAdvancedSearchView
 )
 
 router = DefaultRouter()
-router.register(r'', ChemicalReadOnlyViewSet, basename='chemical')
+router.register(r'summary', ChemicalSummaryReadOnlyViewSet, basename='chemical-summary')
 router.register(r'admin', ChemicalAdminViewSet, basename='admin-chemical')
+router.register(r'', ChemicalReadOnlyViewSet, basename='chemical')
 
 urlpatterns = [
     path(route='autocomplete/', view=AutocompleteSearchView.as_view(), name='autocomplete-search'),

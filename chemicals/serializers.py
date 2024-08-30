@@ -72,7 +72,7 @@ class ConformationSerializer(serializers.ModelSerializer):
         exclude=['id','created_at','update_at', 'chemical']
         
 class ChemicalSerializer(serializers.ModelSerializer):
-    literature = LiteratureSerializer(required=False)
+    literature = LiteratureSerializer(required=False, many=True)
     identifier = IdentifierSerializer(source='identifiers', required=False)
     physical_property = PhysicalPropertySerializer(source='physical_properties', required=False)
     physicochemical_property = PhysicochemicalPropertySerializer(source='physicochemical_properties', required=False)
@@ -228,27 +228,53 @@ class ChemicalSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Chemical
-        fields = ['api_id', 
-                  'chem_depiction_image', 
-                  'literature', 
-                  'identifier',
-                  'physical_property',
-                  'physicochemical_property',
-                  'partition_coefficient',
-                  'solubility',
-                  'qsar_score',
-                  'druglike_rule',
-                  'pharmacokinetics',
-                  'p450_inhibition',
-                  'undesirable_substructure_alert',
-                  'toxicity_prediction',
-                  'synonym',
-                  'conformation']
+        fields = [
+            'api_id',
+            'created_at', 
+            'chem_depiction_image', 
+            'literature', 
+            'identifier',
+            'physical_property',
+            'physicochemical_property',
+            'partition_coefficient',
+            'solubility',
+            'qsar_score',
+            'druglike_rule',
+            'pharmacokinetics',
+            'p450_inhibition',
+            'undesirable_substructure_alert',
+            'toxicity_prediction',
+            'synonym',
+            'conformation',
+        ]
+
+class IdentifierAutocompleteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Identifier
+        fields = ['iupac_name', 'smiles']
 
 class ChemicalAutocompleteSerializer(serializers.ModelSerializer):
-    identifier = IdentifierSerializer(read_only=True, source='identifiers')
+    identifier = IdentifierAutocompleteSerializer(read_only=True, source='identifiers')
     synonym = SynonymSerializer(read_only=True, many=True, source='synonyms')
      
     class Meta:
         model = Chemical
         fields = ['api_id', 'identifier', 'synonym']
+
+class IdentifierSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Identifier
+        fields = ['iupac_name', 'chem_formula']
+
+class PhysicalPropertySummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PhysicalProperty
+        fields = ['molecular_weight', 'state_of_matter', 'mp_lower_bound', 'mp_upper_bound']
+
+class ChemicalSummarySerializer(serializers.ModelSerializer):
+    identifier = IdentifierSummarySerializer(read_only=True, source='identifiers')
+    physical_property = PhysicalPropertySummarySerializer(read_only=True, source='physical_properties')
+    
+    class Meta:
+        model = Chemical
+        fields = ['api_id', 'chem_depiction_image', 'identifier', 'physical_property']

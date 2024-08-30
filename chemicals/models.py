@@ -51,9 +51,8 @@ class Literature(HashAPIIdBaseModel):
 
 class Chemical(BaseModel):
     chem_depiction_image = models.ImageField(upload_to='depictions/', null=True)
-    literature = models.ForeignKey(to=Literature, on_delete=models.CASCADE, null=True, related_name='literature')
+    literature = models.ManyToManyField(to=Literature, related_name='chemicals')
     api_id = models.CharField(max_length=14, unique=True)
-    
     
     def save(self, *args, **kwargs):
         if not self.api_id:

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from django.db.models import Q, F
+from django.db.models import Q, F, Prefetch
 from django.db.models.functions import Greatest
 from django.db.models.manager import BaseManager
 from django.contrib.postgres.search import TrigramSimilarity
@@ -62,6 +62,21 @@ class SynonymSearchService(ExactSearch, SimilaritySearch):
         ).order_by(
             '-synonym_similarity'
         ).prefetch_related('synonyms')
+
+class LiteratureTitleSearchService(ExactSearch, SimilaritySearch):
+    def exact_search(query, queryset, **parameters):
+        return queryset.filter(literature__title=query)
+    
+    def similarity_search(query, queryset, **parameters):
+        return queryset.annotate(
+            literature_title_similarity = TrigramSimilarity('literature__title', query)
+        ).filter(
+            literature_title_similarity__gt=parameters['similarity_threshold']
+        ).order_by(
+            '-literature_title_similarity'
+        ).prefetch_related(
+            Prefetch('literature')
+        )
 
 class FullTextSearchService(SimilaritySearch):
     def similarity_search(query, queryset, **parameters):

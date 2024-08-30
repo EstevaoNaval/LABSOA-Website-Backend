@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunSQL(
-            sql="CREATE INDEX IF NOT EXISTS iupac_full_text_search_idx ON {} USING GIN(iupac_name gin_trgm_ops);".format(Identifier._meta.db_table),
-            reverse_sql="DROP INDEX iupac_full_text_search_idx;"
+            sql="CREATE INDEX IF NOT EXISTS iupac_fulltext_search_idx ON {} USING GIN(iupac_name gin_trgm_ops);".format(Identifier._meta.db_table),
+            reverse_sql="DROP INDEX iupac_fulltext_search_idx;"
         ),
     ]

@@ -49,7 +49,9 @@ class Command(BaseCommand):
                         for depiction_file_path in depiction_files:
                             depiction_filename = os.path.basename(depiction_file_path)
                             with open(depiction_file_path, 'r') as depiction_file:
-                                chemical = Chemical.objects.create(chem_depiction_image=File(depiction_file, name=depiction_filename), literature=literature)
+                                chemical = Chemical.objects.create(chem_depiction_image=File(depiction_file, name=depiction_filename))
+                                if literature:
+                                    chemical.literature.set([literature])
                         
                         identifier, is_identifier_created = Identifier.objects.update_or_create(
                             chemical=chemical,
