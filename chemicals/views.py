@@ -22,10 +22,22 @@ class ChemicalAdvancedSearchView(ListAPIView):
     serializer_class = ChemicalSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ChemicalAdvancedSearchFilter
+    
+class ChemicalAdvancedSearchSummaryView(ListAPIView):
+    queryset = Chemical.objects.all()
+    serializer_class = ChemicalSummarySerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = ChemicalAdvancedSearchFilter
 
 class ChemicalSimpleSearchView(ListAPIView):
     queryset = Chemical.objects.all()
     serializer_class = ChemicalSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ChemicalSimpleSearchFilter
+
+class ChemicalSimpleSearchSummaryView(ListAPIView):
+    queryset = Chemical.objects.all()
+    serializer_class = ChemicalSummarySerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = ChemicalSimpleSearchFilter
 

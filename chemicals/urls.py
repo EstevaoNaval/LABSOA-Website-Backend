@@ -6,7 +6,9 @@ from .views import (
     AutocompleteSearchView,
     ChemicalSummaryReadOnlyViewSet, 
     ChemicalSimpleSearchView,
-    ChemicalAdvancedSearchView
+    ChemicalSimpleSearchSummaryView,
+    ChemicalAdvancedSearchView,
+    ChemicalAdvancedSearchSummaryView
 )
 
 router = DefaultRouter()
@@ -18,5 +20,7 @@ urlpatterns = [
     path(route='autocomplete/', view=AutocompleteSearchView.as_view(), name='autocomplete-search'),
     path(route='search/', view=ChemicalSimpleSearchView.as_view(), name='simple-search'),
     path(route='advanced/', view=ChemicalAdvancedSearchView.as_view(), name='advanced-search'),
+    path(route='search/summary/', view=ChemicalSimpleSearchSummaryView.as_view(), name='simple-search-summary'),
+    path(route='advanced/summary/', view=ChemicalAdvancedSearchSummaryView.as_view(), name='advanced-search-summary'),
     path('', include(router.urls))
 ]

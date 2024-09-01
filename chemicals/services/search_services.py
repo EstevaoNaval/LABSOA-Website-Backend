@@ -31,15 +31,15 @@ class APIIdSearchService(ExactSearch):
 
 class InchiSearchService(ExactSearch):
     def exact_search(query, queryset, **parameters):
-        return queryset.filter(identifiers__inchi=query)
+        return queryset.filter(identifiers__inchi__iexact=query)
     
 class InchiKeySearchService(ExactSearch):
     def exact_search(query, queryset, **parameters):
-        return queryset.filter(identifiers__inchi_key=query)
+        return queryset.filter(identifiers__inchi_key__iexact=query)
         
 class IupacNameSearchService(ExactSearch, SimilaritySearch):
     def exact_search(query, queryset, **parameters):
-        return queryset.filter(identifiers__iupac_name=query)
+        return queryset.filter(identifiers__iupac_name__iexact=query)
     
     def similarity_search(query, queryset, **parameters):
         return queryset.select_related('identifiers').annotate(
@@ -52,7 +52,7 @@ class IupacNameSearchService(ExactSearch, SimilaritySearch):
 
 class SynonymSearchService(ExactSearch, SimilaritySearch):
     def exact_search(query, queryset, **parameters):
-        return queryset.filter(synonyms__name=query)
+        return queryset.filter(synonyms__name__iexact=query)
     
     def similarity_search(query, queryset, **parameters):
         return queryset.annotate(
@@ -65,7 +65,7 @@ class SynonymSearchService(ExactSearch, SimilaritySearch):
 
 class LiteratureTitleSearchService(ExactSearch, SimilaritySearch):
     def exact_search(query, queryset, **parameters):
-        return queryset.filter(literature__title=query)
+        return queryset.filter(literature__title__iexact=query)
     
     def similarity_search(query, queryset, **parameters):
         return queryset.annotate(
@@ -77,6 +77,10 @@ class LiteratureTitleSearchService(ExactSearch, SimilaritySearch):
         ).prefetch_related(
             Prefetch('literature')
         )
+        
+class LiteratureDoiSearchService(ExactSearch):
+    def exact_search(query, queryset, **parameters):
+        return queryset.filter(literature__doi__iexact=query)
 
 class FullTextSearchService(SimilaritySearch):
     def similarity_search(query, queryset, **parameters):

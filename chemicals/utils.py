@@ -19,10 +19,10 @@ class RepresentationDetector:
             return 'inchi'
         elif RepresentationDetector._is_valid_inchikey(value):
             return 'inchi_key'
-        elif RepresentationDetector._is_valid_chemical_formula(value):
-            return 'formula'
         elif RepresentationDetector._is_valid_smarts(value):
             return 'smarts'
+        elif RepresentationDetector._is_valid_chemical_formula(value):
+            return 'formula'
         else:
             return 'fulltext'
     
@@ -96,7 +96,21 @@ class RepresentationDetector:
     @staticmethod
     def _is_valid_api_id(query: str):
         return True if re.match(r'^LSOA[0-9]{10}$', query) else False
+
+class CitationDetector:
+    @staticmethod
+    def detect_type(value):
+        if CitationDetector._is_valid_doi(value):
+            return 'doi'
+        else:
+            return 'title'
     
+    @staticmethod
+    def _is_valid_doi(query: str):
+        REGEX_DOI = re.compile(r'\b(10[.][0-9]{4,}(?:[.][0-9]+)*\/(?:(?![\"\&\'])\S)+)\b', flags = re.IGNORECASE | re.MULTILINE)
+        
+        return True if REGEX_DOI.match(query) is not None else False
+
 def generate_random_sequence(length=10):
     return ''.join(choices(digits, k=length))
 
