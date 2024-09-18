@@ -278,3 +278,35 @@ class ChemicalSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Chemical
         fields = ['api_id', 'chem_depiction_image', 'identifier', 'physical_property']
+        
+class PhysicalPropertyPropListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PhysicalProperty
+        fields = [
+            'molecular_weight', 
+            'count_rotatable_bond', 
+            'count_heavy_atom', 
+            'count_h_bond_donor',
+            'count_h_bond_acceptor',
+            'mp_lower_bound',
+            'mp_upper_bound',
+        ]
+
+class PhysicochemicalPropertyPropListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PhysicochemicalProperty
+        fields = ['tpsa']
+
+class PartitionCoefficientPropListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PartitionCoefficient
+        fields = ['jplogp']
+        
+class ChemicalPropListSerializer(serializers.ModelSerializer):
+    physical_property = PhysicalPropertyPropListSerializer(read_only=True, source='physical_properties')
+    physicochemical_property = PhysicochemicalPropertyPropListSerializer(read_only=True, source='physicochemical_properties')
+    partition_coefficient = PartitionCoefficientPropListSerializer(read_only=True, source='partition_coefficients')
+    
+    class Meta:
+        model = Chemical
+        fields = ['api_id', 'physical_property', 'physicochemical_property', 'partition_coefficient']

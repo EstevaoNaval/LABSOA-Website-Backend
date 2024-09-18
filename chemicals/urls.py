@@ -1,14 +1,13 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
+    ChemicalPropListView,
     ChemicalReadOnlyViewSet, 
     ChemicalAdminViewSet, 
     AutocompleteSearchView,
-    ChemicalSummaryReadOnlyViewSet, 
-    ChemicalSimpleSearchView,
-    ChemicalSimpleSearchSummaryView,
-    ChemicalAdvancedSearchView,
-    ChemicalAdvancedSearchSummaryView
+    ChemicalSummaryReadOnlyViewSet,
+    ChemicalSearchView,
+    ChemicalSearchSummaryView
 )
 
 router = DefaultRouter()
@@ -17,10 +16,9 @@ router.register(r'admin', ChemicalAdminViewSet, basename='admin-chemical')
 router.register(r'', ChemicalReadOnlyViewSet, basename='chemical')
 
 urlpatterns = [
+    path(route='prop-list/', view=ChemicalPropListView.as_view(), name='prop-list'),
     path(route='autocomplete/', view=AutocompleteSearchView.as_view(), name='autocomplete-search'),
-    path(route='search/', view=ChemicalSimpleSearchView.as_view(), name='simple-search'),
-    path(route='advanced/', view=ChemicalAdvancedSearchView.as_view(), name='advanced-search'),
-    path(route='search/summary/', view=ChemicalSimpleSearchSummaryView.as_view(), name='simple-search-summary'),
-    path(route='advanced/summary/', view=ChemicalAdvancedSearchSummaryView.as_view(), name='advanced-search-summary'),
+    path(route='search/', view=ChemicalSearchView.as_view(), name='search'),
+    path(route='search/summary/', view=ChemicalSearchSummaryView.as_view(), name='search-summary'),
     path('', include(router.urls))
 ]

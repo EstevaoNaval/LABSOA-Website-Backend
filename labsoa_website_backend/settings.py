@@ -122,6 +122,7 @@ SPECTACULAR_SETTINGS = {
     'SERVE_PUBLIC': False,
     'EXCLUDE_SCHEMAS': True,
     'POSTPROCESSING_HOOKS': [],
+    'EXCLUDE_PATHS': ['/schema/']
 }
 
 LANGUAGE_CODE = "en-us"

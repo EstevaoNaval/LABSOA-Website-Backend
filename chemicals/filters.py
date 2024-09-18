@@ -5,6 +5,10 @@ from .factories.search_service_factory import SearchServiceFactory
 from .factories.citation_search_service_factory import CitationSearchServiceFactory
 from .factories.search_context_factory import SearchContextFactory
 from .services.search_services import LiteratureTitleSearchService
+from typing import Final
+
+FULLTEXT_SIMILARITY_SEARCH_THRESHOLD: Final[float] = .51
+CHEMICAL_REPRESENTATION_SIMILARITY_SEARCH_THRESHOLD: Final[float] = .85
 
 class ChemicalAutocompleteSearchFilter(django_filters.FilterSet):
     query = django_filters.CharFilter(method='filter_by_representation_and_search_type', required=True)
@@ -14,12 +18,9 @@ class ChemicalAutocompleteSearchFilter(django_filters.FilterSet):
         fields = []
         
     def filter_by_representation_and_search_type(self, queryset, name, value):
-        if RepresentationDetector.detect_type(value) == 'smiles':
-            similarity_threshold = .85
-            representation_type = 'smiles'
-        else:
-            similarity_threshold = .51
-            representation_type = 'fulltext'
+        representation_type = 'smiles' if RepresentationDetector.detect_type(value) == 'smiles' else 'fulltext'
+        
+        similarity_threshold = CHEMICAL_REPRESENTATION_SIMILARITY_SEARCH_THRESHOLD if representation_type == 'smiles' else FULLTEXT_SIMILARITY_SEARCH_THRESHOLD
         
         search_type = self.determine_search_type(representation_type)
         
@@ -37,70 +38,10 @@ class ChemicalAutocompleteSearchFilter(django_filters.FilterSet):
         }
         
         return search_map.get(representation_type, 'similarity')
-
-class ChemicalSimpleSearchFilter(django_filters.FilterSet):
-    query = django_filters.CharFilter(method='filter_by_representation_and_search_type')
-    citation = django_filters.CharFilter(method='fiter_by_citation')
-    
-    class Meta:
-        model = Chemical
-        fields = []
-        
-    def filter_by_representation_and_search_type(self, queryset, name, value):
-        representation_type = self.request.query_params.get('representation_type', '')
-        representation_type = representation_type if representation_type != '' else RepresentationDetector.detect_type(value)
-        
-        similarity_threshold = float(self.request.query_params.get('similarity_threshold', 0.51))
-        
-        search_type = self._determine_search_type(representation_type)
-        
-        service = SearchServiceFactory.get_service(representation_type)
-        
-        context = SearchContextFactory.get_context(service, search_type)
-        
-        queryset = context.search(value, queryset, similarity_threshold=similarity_threshold)
-        
-        return queryset
-    
-    def fiter_by_citation(self, queryset, name, value):
-        citation_type = self.request.query_params.get('citation_type', '')
-        citation_type = citation_type if citation_type != '' else CitationDetector.detect_type(value)
-        
-        similarity_threshold = float(self.request.query_params.get('similarity_threshold', 0.51))
-        
-        search_type = self._determine_citation_search_type(citation_type)
-        
-        service = CitationSearchServiceFactory.get_service(citation_type)
-        
-        context = SearchContextFactory.get_context(service, search_type)
-        
-        queryset = context.search(value, queryset, similarity_threshold=similarity_threshold)
-        
-        return queryset
-    
-    def _determine_search_type(self, representation_type):
-        search_map = {
-            'smiles': 'exact',
-            'api_id': 'exact',
-            'inchi': 'exact',
-            'inchi_key': 'exact',
-            'formula': 'exact',
-            'smarts': 'substructure',
-            'fulltext': 'similarity'
-        }
-        
-        return search_map.get(representation_type, 'exact')
-    
-    def _determine_citation_search_type(self, citation_type):
-        search_map = {
-            'doi': 'exact',
-            'title': 'similarity'
-        }
-
-        return search_map.get(citation_type, 'exact')
         
 class ChemicalAdvancedSearchFilter(django_filters.FilterSet):
     query = django_filters.CharFilter(method='filter_by_representation_and_search_type')
+    citation = django_filters.CharFilter(method='fiter_by_citation')
     
     # Model Literature
     doi = django_filters.CharFilter(field_name='literature__doi', lookup_expr='iexact')
@@ -239,6 +180,8 @@ class ChemicalAdvancedSearchFilter(django_filters.FilterSet):
     
     ames_mutagenesis_prediction = django_filters.BooleanFilter(field_name='toxicity_predictions__ames_mutagenesis_prediction')
     
+    
+    
     class Meta:
         model = Chemical
         fields = []
@@ -247,9 +190,11 @@ class ChemicalAdvancedSearchFilter(django_filters.FilterSet):
         representation_type = self.request.query_params.get('representation_type', '')
         representation_type = representation_type if representation_type != '' else RepresentationDetector.detect_type(value)
         
-        search_type = self.request.query_params.get('search_type', 'exact')
+        search_type = self.request.query_params.get('search_type', '')
+        search_type = search_type if search_type != '' else self._determine_search_type(representation_type)
         
-        threshold = float(self.request.query_params.get('similarity_threshold', .51))
+        similarity_threshold = CHEMICAL_REPRESENTATION_SIMILARITY_SEARCH_THRESHOLD if representation_type == 'smiles' else FULLTEXT_SIMILARITY_SEARCH_THRESHOLD
+        threshold = float(self.request.query_params.get('similarity_threshold', similarity_threshold))
          
         try:
             service = SearchServiceFactory.get_service(representation_type)
@@ -260,11 +205,48 @@ class ChemicalAdvancedSearchFilter(django_filters.FilterSet):
             return queryset
         except ValueError as e:
             return queryset.none()
+    
+    def fiter_by_citation(self, queryset, name, value):
+        citation_type = self.request.query_params.get('citation_type', '')
+        citation_type = citation_type if citation_type != '' else CitationDetector.detect_type(value)
         
+        similarity_threshold = float(self.request.query_params.get('similarity_threshold', FULLTEXT_SIMILARITY_SEARCH_THRESHOLD))
+        
+        search_type = self._determine_citation_search_type(citation_type)
+        
+        service = CitationSearchServiceFactory.get_service(citation_type)
+        
+        context = SearchContextFactory.get_context(service, search_type)
+        
+        queryset = context.search(value, queryset, similarity_threshold=similarity_threshold)
+        
+        return queryset
+    
+    def _determine_search_type(self, representation_type):
+        search_map = {
+            'smiles': 'similarity',
+            'api_id': 'exact',
+            'inchi': 'exact',
+            'inchi_key': 'exact',
+            'formula': 'exact',
+            'smarts': 'substructure',
+            'fulltext': 'similarity'
+        }
+        
+        return search_map.get(representation_type, 'exact')
+    
+    def _determine_citation_search_type(self, citation_type):
+        search_map = {
+            'doi': 'exact',
+            'title': 'similarity'
+        }
+
+        return search_map.get(citation_type, 'exact')
+    
     def filter_by_title(self, queryset, name, value):
         search_type = self.request.query_params.get('search_type', 'similarity')
         
-        threshold = float(self.request.query_params.get('similarity_threshold', .51))
+        threshold = float(self.request.query_params.get('similarity_threshold', FULLTEXT_SIMILARITY_SEARCH_THRESHOLD))
         
         try:
             service = LiteratureTitleSearchService
