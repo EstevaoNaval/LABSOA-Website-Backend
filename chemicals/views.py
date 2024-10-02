@@ -116,8 +116,9 @@ class ChemicalReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Chemical.objects.all()
     serializer_class = ChemicalSerializer
     lookup_field = 'api_id'
-    filter_backends = [filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     ordering_fields = ORDERING_FIELDS_LIST
+    filterset_class = ChemicalAdvancedSearchFilter
     ordering = ['api_id']
     permission_classes = [permissions.AllowAny]
     
@@ -133,8 +134,9 @@ class ChemicalSummaryReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Chemical.objects.all()
     serializer_class = ChemicalSummarySerializer
     lookup_field = 'api_id'
-    filter_backends = [filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     ordering_fields = ORDERING_FIELDS_LIST
+    filterset_class = ChemicalAdvancedSearchFilter
     ordering = ['api_id']
     permission_classes = [permissions.AllowAny]
     
