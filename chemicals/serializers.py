@@ -56,10 +56,10 @@ class UndesirableSubstructureAlertSerializer(serializers.ModelSerializer):
         model = UndesirableSubstructureAlert
         exclude=['id','created_at','update_at', 'chemical']
         
-class ToxicityPredictionSerializer(serializers.ModelSerializer):
+'''class ToxicityPredictionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ToxicityPrediction
-        exclude=['id','created_at','update_at', 'chemical']
+        exclude=['id','created_at','update_at', 'chemical']'''
 
 class SynonymSerializer(serializers.ModelSerializer):
     class Meta:
@@ -83,7 +83,7 @@ class ChemicalSerializer(serializers.ModelSerializer):
     pharmacokinetics = PharmacokineticsSerializer(required=False)
     p450_inhibition = P450InhibitionSerializer(source='p450_inhibitors', required=False)
     undesirable_substructure_alert = UndesirableSubstructureAlertSerializer(source='undesirable_substructure_alerts', required=False)
-    toxicity_prediction = ToxicityPredictionSerializer(source='toxicity_predictions', required=False)
+    #toxicity_prediction = ToxicityPredictionSerializer(source='toxicity_predictions', required=False)
     synonym = SynonymSerializer(many=True, required=False, source='synonyms')
     conformation = ConformationSerializer(many=True, required=False, source='conformations')
     
@@ -203,7 +203,7 @@ class ChemicalSerializer(serializers.ModelSerializer):
                 defaults = undesirable_substructure_alert_data
             )
         
-        toxicity_prediction_data = validated_data.pop('toxicity_predictions', None)
+        '''toxicity_prediction_data = validated_data.pop('toxicity_predictions', None)
         if toxicity_prediction_data is not None:
             toxicity_prediction_api_id = instance.toxicity_predictions.api_id
             
@@ -211,7 +211,7 @@ class ChemicalSerializer(serializers.ModelSerializer):
                 api_id = toxicity_prediction_api_id,
                 chemical = instance,
                 defaults = toxicity_prediction_data
-            )
+            )'''
         
         synonyms_data = validated_data.pop('synonyms', None)
         if synonyms_data:
@@ -243,7 +243,6 @@ class ChemicalSerializer(serializers.ModelSerializer):
             'pharmacokinetics',
             'p450_inhibition',
             'undesirable_substructure_alert',
-            'toxicity_prediction',
             'synonym',
             'conformation',
         ]
@@ -301,12 +300,31 @@ class PartitionCoefficientPropListSerializer(serializers.ModelSerializer):
     class Meta:
         model = PartitionCoefficient
         fields = ['jplogp']
-        
+
+class UndesirableSubstructureAlertPropListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UndesirableSubstructureAlert
+        fields = ['count_pains_alert']
+
+class DrugLikeRulePropListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DrugLikeRule
+        fields = ['count_lipinski_violation']
+
 class ChemicalPropListSerializer(serializers.ModelSerializer):
     physical_property = PhysicalPropertyPropListSerializer(read_only=True, source='physical_properties')
     physicochemical_property = PhysicochemicalPropertyPropListSerializer(read_only=True, source='physicochemical_properties')
     partition_coefficient = PartitionCoefficientPropListSerializer(read_only=True, source='partition_coefficients')
+    undesirable_substructure_alert = UndesirableSubstructureAlertPropListSerializer(read_only=True, source='undesirable_substructure_alerts')
+    druglike_rule = DrugLikeRulePropListSerializer(read_only=True, source='druglike_rules')
     
     class Meta:
         model = Chemical
-        fields = ['api_id', 'physical_property', 'physicochemical_property', 'partition_coefficient']
+        fields = [
+            'api_id', 
+            'physical_property', 
+            'physicochemical_property', 
+            'partition_coefficient', 
+            'undesirable_substructure_alert',
+            'druglike_rule'
+        ]

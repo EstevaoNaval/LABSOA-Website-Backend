@@ -59,6 +59,8 @@ class ChemicalPropListView(ListAPIView):
             'partition_coefficients__jplogp',
             'physical_properties__mp_lower_bound',
             'physical_properties__mp_upper_bound',
+            'undesirable_substructure_alerts__count_pains_alert',
+            'druglike_rules__count_lipinski_violation'
         )
     
     def list(self, request, *args, **kwargs):
@@ -75,7 +77,8 @@ class ChemicalPropListView(ListAPIView):
         jplogp_list = [item['partition_coefficients__jplogp'] for item in paginated_queryset if item['partition_coefficients__jplogp'] is not None]
         mp_lower_bound_list = [item['physical_properties__mp_lower_bound'] for item in paginated_queryset if item['physical_properties__mp_lower_bound'] is not None]
         mp_upper_bound_list = [item['physical_properties__mp_upper_bound'] for item in paginated_queryset if item['physical_properties__mp_upper_bound'] is not None]
-        #publication_date_list = [item['publication_date'] for item in paginated_queryset if item['publication_date'] is not None]
+        count_pains_alert = [item['undesirable_substructure_alerts__count_pains_alert'] for item in paginated_queryset if item['undesirable_substructure_alerts__count_pains_alert'] is not None]
+        count_lipinski_violation = [item['druglike_rules__count_lipinski_violation'] for item in paginated_queryset if item['druglike_rules__count_lipinski_violation'] is not None]
 
         response_data = {
             'h_bond_acceptor': h_bond_acceptor_list,
@@ -87,7 +90,8 @@ class ChemicalPropListView(ListAPIView):
             'jplogp': jplogp_list,
             'mp_lower_bound': mp_lower_bound_list,
             'mp_upper_bound': mp_upper_bound_list,
-            #'publication_date': publication_date_list,
+            'count_pains_alert': count_pains_alert,
+            'count_lipinski_violation': count_lipinski_violation
         }
 
         return self.get_paginated_response(response_data)

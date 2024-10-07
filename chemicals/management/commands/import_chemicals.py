@@ -161,14 +161,14 @@ class Command(BaseCommand):
                             }
                         )
                         
-                        toxicity_prediction, is_toxicity_prediction_created = ToxicityPrediction.objects.update_or_create(
+                        '''toxicity_prediction, is_toxicity_prediction_created = ToxicityPrediction.objects.update_or_create(
                             chemical=chemical,
                             defaults={
                                 'cardiotoxicity_prediction': int(row.get('cardiotoxicity_prediction')),
                                 'hepatotoxicity_prediction': int(row.get('hepatotoxicity_prediction')),
                                 'ames_mutagenesis_prediction': int(row.get('ames_mutagenesis_prediction'))
                             }
-                        )
+                        )'''
                         
                         chemical_confs_base_file_path = os.path.join(chem_confs_base_path, row.get('id'), CHEMICAL_CONFS_FILE_FORMAT)
                         conformation_files = find_files(chemical_confs_base_file_path, CHEMICAL_CONFS_FILE_FORMAT)

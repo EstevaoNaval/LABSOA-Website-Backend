@@ -160,11 +160,11 @@ class UndesirableSubstructureAlert(HashAPIIdBaseModel):
     count_brenk_alert = models.PositiveSmallIntegerField()
     chemical = models.OneToOneField(to=Chemical, on_delete=models.CASCADE, related_name='undesirable_substructure_alerts')
 
-class ToxicityPrediction(HashAPIIdBaseModel):
+'''class ToxicityPrediction(HashAPIIdBaseModel):
     cardiotoxicity_prediction = models.BooleanField()
     hepatotoxicity_prediction = models.BooleanField()
     ames_mutagenesis_prediction = models.BooleanField()
-    chemical = models.OneToOneField(to=Chemical, on_delete=models.CASCADE, related_name='toxicity_predictions')
+    chemical = models.OneToOneField(to=Chemical, on_delete=models.CASCADE, related_name='toxicity_predictions')'''
 
 class Synonym(HashAPIIdBaseModel):
     name = models.TextField()
