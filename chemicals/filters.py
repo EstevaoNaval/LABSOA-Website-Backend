@@ -55,9 +55,6 @@ class ChemicalAdvancedSearchFilter(django_filters.FilterSet):
     volume__gte = django_filters.NumberFilter(field_name='physical_properties__volume', lookup_expr='gte')
     volume__lte = django_filters.NumberFilter(field_name='physical_properties__volume', lookup_expr='lte')
     
-    density__gte = django_filters.NumberFilter(field_name='physical_properties__density', lookup_expr='gte')
-    density__lte = django_filters.NumberFilter(field_name='physical_properties__density', lookup_expr='lte')
-    
     count_atom__gte = django_filters.NumberFilter(field_name='physical_properties__count_atom', lookup_expr='gte')
     count_atom__lte = django_filters.NumberFilter(field_name='physical_properties__count_atom', lookup_expr='lte')
     

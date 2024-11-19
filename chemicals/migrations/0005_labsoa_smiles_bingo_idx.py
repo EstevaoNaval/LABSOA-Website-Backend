@@ -4,7 +4,7 @@ from chemicals.models import Identifier
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chemicals', '0004_synonym_fulltext_search_idx'),
+        ('chemicals', '0004_iupac_fulltext_search_idx'),
     ]
 
     operations = [

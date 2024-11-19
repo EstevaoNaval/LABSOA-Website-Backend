@@ -69,7 +69,6 @@ class Command(BaseCommand):
                             defaults={
                                 'molecular_weight': row.get('mass_weight'),
                                 'volume': row.get('volume'),
-                                'density': row.get('density'),
                                 'count_atom': row.get('num_atom'),
                                 'count_heteroatom': row.get('num_heteroatom'),
                                 'count_heavy_atom': row.get('num_heavy_atom'),

@@ -4,8 +4,9 @@ import os
 
 load_dotenv()
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+API_BASE_URL = os.getenv('API_BASE_URL')
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
@@ -15,6 +16,8 @@ ALLOWED_HOSTS = []
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+AUTH_USER_MODEL = 'user.User'
+
 CACHES = {
     "default": {
         "BACKEND": os.getenv('CACHES_BACKEND'),
@@ -23,6 +26,8 @@ CACHES = {
 }
 
 INSTALLED_APPS = [
+    "user.apps.UserConfig",
+    "authentication.apps.AuthenticationConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -31,9 +36,22 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
+    "knox",
     "drf_spectacular",
     "django_filters",
-    "chemicals.apps.ChemicalsConfig"
+    "django_celery_results",
+    "django_clamd",
+    "chemicals.apps.ChemicalsConfig",
+    "pdf2chemicals.apps.Pdf2ChemicalsConfig",
+    "email_service.apps.EmailServiceConfig"
+]
+
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+    "django.contrib.auth.hashers.ScryptPasswordHasher"
 ]
 
 MIDDLEWARE = [
@@ -68,9 +86,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "labsoa_website_backend.wsgi.application"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, os.getenv('MEDIA_RELATIVE_PATH'))
-
 MEDIA_URL = os.getenv('MEDIA_URL')
-
 STATIC_URL = os.getenv('STATIC_URL')
 
 DATABASES = {
@@ -83,6 +99,10 @@ DATABASES = {
         "PORT": os.getenv('DATABASE_PORT'),
     }
 }
+
+AUTHENTICATION_BACKENDS = [
+    'authentication.backends.EmailBackend'
+]
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -105,11 +125,18 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'knox.auth.TokenAuthentication'
+    ],
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
     'DEFAULT_VERSION': 'v1',
     'ALLOWED_VERSIONS': ['v1'],
     'VERSION_PARAMETER': 'version',
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'
+}
+
+REST_KNOX = {
+    'AUTH_HEADER_PREFIX': 'Bearer'
 }
 
 SPECTACULAR_SETTINGS = {
@@ -125,12 +152,20 @@ SPECTACULAR_SETTINGS = {
     'EXCLUDE_PATHS': ['/schema/']
 }
 
+CLAMD_USE_TCP = True
+CLAMD_TCP_ADDR = 'clam_container_01'
+CLAMD_TCP_SOCKET = 3310
+CLAMD_ENABLED = True
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'default'
+CELERY_TIMEZONE = "America/Sao_Paulo"
+CELERY_TASK_TRACK_STARTED = True
+
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "America/Sao_Paulo"
-
 USE_I18N = True
-
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

@@ -9,7 +9,10 @@ urlpatterns = [
     path('schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path("admin/", admin.site.urls),
-    path("api/chemicals/", include("chemicals.urls"))
+    path("api/chemicals/", include("chemicals.urls")),
+    path("api/pdf2chemicals/", include("pdf2chemicals.urls")),
+    path("auth/", include("authentication.urls")),
+    path("user/", include("user.urls"))
 ]
 
 if settings.DEBUG:

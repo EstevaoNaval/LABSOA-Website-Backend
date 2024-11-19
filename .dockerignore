@@ -1,0 +1,25 @@
+# Ignorar o diretório do pdf2chemicals para não ser incluído na imagem do Django
+
+pdf2chemicals/
+
+# Ignorar arquivos e diretórios desnecessários para o Docker
+
+_.pyc
+**pycache**/
+_.pyo
+_.pyd
+.Python
+env/
+venv/
+.idea/
+.vscode/
+_.log
+_.sqlite3
+_.DS_Store
+_.egg-info/
+_.swp
+
+# Ignorar pastas específicas que você não deseja incluir nas imagens
+
+.git/
+node_modules/

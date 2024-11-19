@@ -55,11 +55,6 @@ class UndesirableSubstructureAlertSerializer(serializers.ModelSerializer):
     class Meta:
         model = UndesirableSubstructureAlert
         exclude=['id','created_at','update_at', 'chemical']
-        
-'''class ToxicityPredictionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ToxicityPrediction
-        exclude=['id','created_at','update_at', 'chemical']'''
 
 class SynonymSerializer(serializers.ModelSerializer):
     class Meta:
@@ -83,7 +78,6 @@ class ChemicalSerializer(serializers.ModelSerializer):
     pharmacokinetics = PharmacokineticsSerializer(required=False)
     p450_inhibition = P450InhibitionSerializer(source='p450_inhibitors', required=False)
     undesirable_substructure_alert = UndesirableSubstructureAlertSerializer(source='undesirable_substructure_alerts', required=False)
-    #toxicity_prediction = ToxicityPredictionSerializer(source='toxicity_predictions', required=False)
     synonym = SynonymSerializer(many=True, required=False, source='synonyms')
     conformation = ConformationSerializer(many=True, required=False, source='conformations')
     
@@ -202,16 +196,6 @@ class ChemicalSerializer(serializers.ModelSerializer):
                 chemical = instance,
                 defaults = undesirable_substructure_alert_data
             )
-        
-        '''toxicity_prediction_data = validated_data.pop('toxicity_predictions', None)
-        if toxicity_prediction_data is not None:
-            toxicity_prediction_api_id = instance.toxicity_predictions.api_id
-            
-            ToxicityPrediction.objects.update_or_create(
-                api_id = toxicity_prediction_api_id,
-                chemical = instance,
-                defaults = toxicity_prediction_data
-            )'''
         
         synonyms_data = validated_data.pop('synonyms', None)
         if synonyms_data:

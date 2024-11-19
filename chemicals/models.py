@@ -6,6 +6,8 @@ import base64
 import time
 import os
 
+from user.models import User
+
 from .utils import generate_random_sequence, validate_hex_color
 
 class BaseModel(models.Model):
@@ -53,6 +55,7 @@ class Chemical(BaseModel):
     chem_depiction_image = models.ImageField(upload_to='depictions/', null=True)
     literature = models.ManyToManyField(to=Literature, related_name='chemicals')
     api_id = models.CharField(max_length=14, unique=True)
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='chemicals')
     
     def save(self, *args, **kwargs):
         if not self.api_id:
@@ -65,6 +68,7 @@ class Chemical(BaseModel):
         while True:
             suffix = generate_random_sequence(length)
             api_id = f"{prefix}{suffix}"
+            
             if not Chemical.objects.filter(api_id=api_id).exists():
                 return api_id
 
@@ -93,7 +97,6 @@ class Identifier(HashAPIIdBaseModel):
 class PhysicalProperty(HashAPIIdBaseModel):
     molecular_weight = models.FloatField()
     volume = models.FloatField()
-    density = models.FloatField()
     count_atom = models.PositiveSmallIntegerField()
     count_heteroatom = models.PositiveSmallIntegerField()
     count_heavy_atom = models.PositiveSmallIntegerField()
@@ -159,12 +162,6 @@ class UndesirableSubstructureAlert(HashAPIIdBaseModel):
     count_pains_alert = models.PositiveSmallIntegerField()
     count_brenk_alert = models.PositiveSmallIntegerField()
     chemical = models.OneToOneField(to=Chemical, on_delete=models.CASCADE, related_name='undesirable_substructure_alerts')
-
-'''class ToxicityPrediction(HashAPIIdBaseModel):
-    cardiotoxicity_prediction = models.BooleanField()
-    hepatotoxicity_prediction = models.BooleanField()
-    ames_mutagenesis_prediction = models.BooleanField()
-    chemical = models.OneToOneField(to=Chemical, on_delete=models.CASCADE, related_name='toxicity_predictions')'''
 
 class Synonym(HashAPIIdBaseModel):
     name = models.TextField()
