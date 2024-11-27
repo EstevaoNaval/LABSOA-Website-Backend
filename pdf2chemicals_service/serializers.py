@@ -6,6 +6,7 @@ from rest_framework import serializers
 
 
 class PDFSerializer(serializers.Serializer):
+    email = serializers.EmailField(allow_blank=False)
     pdf_files = serializers.ListField(
         child=serializers.FileField(validators=[validate_file_infection]),
         allow_empty=False,
@@ -39,7 +40,7 @@ class PDFSerializer(serializers.Serializer):
             if not file.name.endswith(".pdf") or not self._has_pdf_file_extension_signature(file):
                 raise serializers.ValidationError("The uploaded files must be in PDF file format.")
 
-            if file.size > 10 * 1024 * 1024: # Files with size greater than 10MB are not allowed.
+            if file.size > 50 * 1024 * 1024: # Files with size greater than 50MB are not allowed.
                 raise serializers.ValidationError(f"{file.name} exceeds the size limit of 10 MB.")
         
         return value

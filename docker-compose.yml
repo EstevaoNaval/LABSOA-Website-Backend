@@ -1,12 +1,19 @@
 services:
   # Serviço do Django (web)
   django-api:
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "1G"
     build:
       context: .
       dockerfile: Dockerfile
+    restart: always
     volumes:
       - .:/app
       - ./data:/app/data
+      - media:/app/media
     ports:
       - "8000:8000"
     env_file:
@@ -19,33 +26,44 @@ services:
   # Serviço Celery Worker para PDF (com acesso ao Django e ao pdf_processor)
   chemicals_celery_worker:
     build:
-      context: ./pdf2chemicals # Usar o Dockerfile do pdf2chemicals
+      context: . # Usar o Dockerfile do pdf2chemicals
+      dockerfile: Dockerfile_Worker_Celery
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: "4G"
+        reservations:
+          cpus: "0.5"
+          memory: "256M"
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
     volumes:
       - .:/app # Montar o código do Django e o app pdf_processor como volume
       - ./data:/app/data
+      - media:/app/media
     environment:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
     depends_on:
       - rabbitmq
-    command:
-      [
-        "conda",
-        "run",
-        "-n",
-        "pdf2chemicals",
-        "python",
-        "-m",
-        "celery",
-        "-A",
-        "labsoa_website_backend",
-        "worker",
-        "--loglevel=info",
-      ]
+    logging:
+      driver: "json-file" # Default logging driver
+      options:
+        max-size: "10m" # Rotate logs after they reach 10 MB
+        max-file: "3" # Keep a maximum of 3 log files
 
   labsoadb:
     build:
       context: ./labsoadb
       dockerfile: Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "1G"
     environment:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_USER: ${DATABASE_USER}
@@ -55,6 +73,10 @@ services:
 
   memcached:
     image: "memcached:1.6"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
     ports:
       - "11211:11211"
     command: -m 512
@@ -62,6 +84,11 @@ services:
   # Serviço RabbitMQ (broker de mensagens)
   rabbitmq:
     image: rabbitmq:4-management
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: "1G"
     ports:
       - "5672:5672" # Porta padrão do RabbitMQ
       - "15672:15672" # Porta para a interface de administração do RabbitMQ
@@ -69,14 +96,20 @@ services:
   clam_container_01:
     container_name: clam_container_01
     image: clamav/clamav:1.0.7
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: "3G"
     ports:
       - "3310:3310"
       - "7357:7357"
     volumes:
       - clamav-data:/var/lib/clamav
-      - "clamav-logs:/var/log/clamav"
+      - clamav-logs:/var/log/clamav
     restart: unless-stopped
 
 volumes:
+  media:
   clamav-data:
   clamav-logs:

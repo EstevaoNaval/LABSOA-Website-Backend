@@ -12,7 +12,9 @@ from .serializers import (
     ChemicalSummarySerializer, 
     ChemicalPropListSerializer
 )
-from .models import Chemical
+from .models import (
+    Chemical                    
+)
 from .pagination import PropListPagination
 
 from .filters import (
@@ -159,4 +161,4 @@ class ChemicalAdminViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['api_id']
     ordering = ['api_id']
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]

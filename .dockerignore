@@ -1,7 +1,3 @@
-# Ignorar o diretório do pdf2chemicals para não ser incluído na imagem do Django
-
-pdf2chemicals/
-
 # Ignorar arquivos e diretórios desnecessários para o Docker
 
 _.pyc

@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 from pathlib import Path
 import os
+import sys
 
 load_dotenv()
 
@@ -12,7 +13,10 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    'django-api'
+]
 
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -42,7 +46,7 @@ INSTALLED_APPS = [
     "django_celery_results",
     "django_clamd",
     "chemicals.apps.ChemicalsConfig",
-    "pdf2chemicals.apps.Pdf2ChemicalsConfig",
+    "pdf2chemicals_service.apps.Pdf2ChemicalsServiceConfig",
     "email_service.apps.EmailServiceConfig"
 ]
 
@@ -85,8 +89,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "labsoa_website_backend.wsgi.application"
 
-MEDIA_ROOT = os.path.join(BASE_DIR, os.getenv('MEDIA_RELATIVE_PATH'))
+MEDIA_ROOT = BASE_DIR / os.getenv('MEDIA_RELATIVE_PATH')
 MEDIA_URL = os.getenv('MEDIA_URL')
+
+STATIC_ROOT = BASE_DIR / os.getenv('STATIC_RELATIVE_PATH')
 STATIC_URL = os.getenv('STATIC_URL')
 
 DATABASES = {
@@ -152,6 +158,45 @@ SPECTACULAR_SETTINGS = {
     'EXCLUDE_PATHS': ['/schema/']
 }
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,  # Log para stdout
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            'propagate': True,
+        },
+        'celery': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
 CLAMD_USE_TCP = True
 CLAMD_TCP_ADDR = 'clam_container_01'
 CLAMD_TCP_SOCKET = 3310
@@ -161,6 +206,14 @@ CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'default'
 CELERY_TIMEZONE = "America/Sao_Paulo"
 CELERY_TASK_TRACK_STARTED = True
+CELERY_AUTH_TOKEN = os.getenv('CELERY_AUTH_TOKEN')
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'queue_durable': True,
+    'message_persistent': True
+}
+CELERY_TASK_ACKS_LATE = True
+CELERY_TASK_DEFAULT_DELIVERY_MODE = 'persistent'
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1 
 
 LANGUAGE_CODE = "en-us"
 

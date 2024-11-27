@@ -3,6 +3,9 @@
 import os
 import sys
 
+subproject_path = os.path.join(os.path.dirname(__file__), 'libs', 'pdf2chemicals')
+if subproject_path not in sys.path:
+    sys.path.insert(0, subproject_path)
 
 def main():
     """Run administrative tasks."""

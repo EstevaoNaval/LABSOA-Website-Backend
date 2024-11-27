@@ -53,7 +53,7 @@ class Command(BaseCommand):
                                 if literature:
                                     chemical.literature.set([literature])
                         
-                        identifier, is_identifier_created = Identifier.objects.update_or_create(
+                        Identifier.objects.update_or_create(
                             chemical=chemical,
                             defaults={
                                 'iupac_name': row.get('iupac'),
@@ -64,7 +64,7 @@ class Command(BaseCommand):
                             }
                         )
                         
-                        physical_property, is_physical_property_created = PhysicalProperty.objects.update_or_create(
+                        PhysicalProperty.objects.update_or_create(
                             chemical=chemical,
                             defaults={
                                 'molecular_weight': row.get('mass_weight'),
@@ -86,7 +86,7 @@ class Command(BaseCommand):
                             }
                         )
                         
-                        physicochemical_property, is_physicochemical_property_created = PhysicochemicalProperty.objects.update_or_create(
+                        PhysicochemicalProperty.objects.update_or_create(
                             chemical=chemical,
                             defaults= {
                                 'fraction_csp3': row.get('fraction_csp3'),
@@ -95,7 +95,7 @@ class Command(BaseCommand):
                             }
                         )
                         
-                        partition_coefficient, is_partition_coefficient_created = PartitionCoefficient.objects.update_or_create(
+                        PartitionCoefficient.objects.update_or_create(
                             chemical=chemical,
                             defaults= {
                                 'wildman_crippen_logp': row.get('wlogp'),
@@ -105,7 +105,7 @@ class Command(BaseCommand):
                             }
                         )
                         
-                        solubility, is_solubility_created = Solubility.objects.update_or_create(
+                        Solubility.objects.update_or_create(
                             chemical=chemical,
                             defaults={
                                 'esol_logs': row.get('esol_logs'),
@@ -113,7 +113,7 @@ class Command(BaseCommand):
                             }
                         )
                         
-                        qsar_score, is_qsar_score_created = QsarScore.objects.update_or_create(
+                        QsarScore.objects.update_or_create(
                             chemical=chemical,
                             defaults={
                                 'qed_score': row.get('qed_score'),
@@ -122,7 +122,7 @@ class Command(BaseCommand):
                             }
                         )
                         
-                        druglike_rule, is_druglike_rule_created = DrugLikeRule.objects.update_or_create(
+                        DrugLikeRule.objects.update_or_create(
                             chemical=chemical,
                             defaults={
                                 'count_lipinski_violation': row.get('num_lipinski_violation'),
@@ -133,7 +133,7 @@ class Command(BaseCommand):
                             }
                         )
                         
-                        pharmacokinetics, is_pharmacokinetics_created = Pharmacokinetics.objects.update_or_create(
+                        Pharmacokinetics.objects.update_or_create(
                             chemical=chemical,
                             defaults={
                                 'gastrointestinal_absorption': int(row.get('gi_absorption')),
@@ -141,7 +141,7 @@ class Command(BaseCommand):
                             }
                         )
                         
-                        p450_inhibition, is_p450_inhibition_created = P450Inhibition.objects.update_or_create(
+                        P450Inhibition.objects.update_or_create(
                             chemical=chemical,
                             defaults={
                                 'cyp1a2_inhibitor': int(row.get('cyp1a2_inhibitor')),
@@ -152,22 +152,13 @@ class Command(BaseCommand):
                             }
                         )
                         
-                        undesirable_substructure_alert, is_undesirable_substructure_alert_created = UndesirableSubstructureAlert.objects.update_or_create(
+                        UndesirableSubstructureAlert.objects.update_or_create(
                             chemical=chemical,
                             defaults={
                                 'count_pains_alert': row.get('num_pains_violation'),
                                 'count_brenk_alert': row.get('num_brenk_violation')
                             }
                         )
-                        
-                        '''toxicity_prediction, is_toxicity_prediction_created = ToxicityPrediction.objects.update_or_create(
-                            chemical=chemical,
-                            defaults={
-                                'cardiotoxicity_prediction': int(row.get('cardiotoxicity_prediction')),
-                                'hepatotoxicity_prediction': int(row.get('hepatotoxicity_prediction')),
-                                'ames_mutagenesis_prediction': int(row.get('ames_mutagenesis_prediction'))
-                            }
-                        )'''
                         
                         chemical_confs_base_file_path = os.path.join(chem_confs_base_path, row.get('id'), CHEMICAL_CONFS_FILE_FORMAT)
                         conformation_files = find_files(chemical_confs_base_file_path, CHEMICAL_CONFS_FILE_FORMAT)

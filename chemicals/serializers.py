@@ -1,72 +1,93 @@
+from django.db import IntegrityError
+
 from rest_framework import serializers
+
 from .models import *
+from .util.util import ManuscriptMetadata
 
 class LiteratureSerializer(serializers.ModelSerializer):
+    doi = serializers.CharField(validators=[])
+    
     class Meta:
         model = Literature
         exclude=['id','created_at','update_at']
+        read_only_fields=['api_id','title','publication_date','publication_name']
 
 class IdentifierSerializer(serializers.ModelSerializer):
     class Meta:
         model = Identifier
         exclude=['id','created_at','update_at', 'chemical']
+        read_only_fields=['api_id']
 
 class PhysicalPropertySerializer(serializers.ModelSerializer):
     class Meta:
         model = PhysicalProperty
         exclude=['id','created_at','update_at', 'chemical']
+        read_only_fields=['api_id']
         
 class PhysicochemicalPropertySerializer(serializers.ModelSerializer):
     class Meta:
         model = PhysicochemicalProperty
         exclude=['id','created_at','update_at', 'chemical']
+        read_only_fields=['api_id']
         
 class PartitionCoefficientSerializer(serializers.ModelSerializer):
     class Meta:
         model = PartitionCoefficient
         exclude=['id','created_at','update_at', 'chemical']
+        read_only_fields=['api_id']
         
 class SolubilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Solubility
         exclude=['id','created_at','update_at', 'chemical']
+        read_only_fields=['api_id']
         
 class QsarScoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = QsarScore
         exclude=['id','created_at','update_at', 'chemical']
+        read_only_fields=['api_id']
 
 class DrugLikeRuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = DrugLikeRule
         exclude=['id','created_at','update_at', 'chemical']
+        read_only_fields=['api_id']
         
 class PharmacokineticsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pharmacokinetics
         exclude=['id','created_at','update_at', 'chemical']
+        read_only_fields=['api_id']
         
 class P450InhibitionSerializer(serializers.ModelSerializer):
     class Meta:
         model = P450Inhibition
         exclude=['id','created_at','update_at', 'chemical']
+        read_only_fields=['api_id']
 
 class UndesirableSubstructureAlertSerializer(serializers.ModelSerializer):
     class Meta:
         model = UndesirableSubstructureAlert
         exclude=['id','created_at','update_at', 'chemical']
+        read_only_fields=['api_id']
 
 class SynonymSerializer(serializers.ModelSerializer):
     class Meta:
         model = Synonym
         exclude=['id','created_at','update_at', 'chemical']
+        read_only_fields=['api_id']
         
 class ConformationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Conformation
         exclude=['id','created_at','update_at', 'chemical']
+        read_only_fields=['api_id']
         
 class ChemicalSerializer(serializers.ModelSerializer):
+    api_id = serializers.CharField(required=False)
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
     literature = LiteratureSerializer(required=False, many=True)
     identifier = IdentifierSerializer(source='identifiers', required=False)
     physical_property = PhysicalPropertySerializer(source='physical_properties', required=False)
@@ -80,6 +101,88 @@ class ChemicalSerializer(serializers.ModelSerializer):
     undesirable_substructure_alert = UndesirableSubstructureAlertSerializer(source='undesirable_substructure_alerts', required=False)
     synonym = SynonymSerializer(many=True, required=False, source='synonyms')
     conformation = ConformationSerializer(many=True, required=False, source='conformations')
+    
+    def create(self, validated_data):
+        # Pop fields related to nested serializers
+        nested_fields = [
+            'literature', 'identifiers', 'physical_properties',
+            'physicochemical_properties', 'partition_coefficients', 'solubilities',
+            'qsar_scores', 'druglike_rules', 'pharmacokinetics', 'p450_inhibitors',
+            'undesirable_substructure_alerts', 'synonyms', 'conformations'
+        ]
+        
+        # Extract nested data
+        nested_data = {field: validated_data.pop(field, []) for field in nested_fields}
+
+        # Create the main instance
+        chemical = Chemical.objects.create(**validated_data)
+
+        # Handle nested data creation
+        if nested_data['literature']:
+            for lit in nested_data['literature']:
+                doi = lit.get('doi', None)
+                if not doi:
+                    continue  # Skip entries without a DOI
+                
+                try:
+                    # Fetch metadata for the manuscript
+                    manuscript_metadata = ManuscriptMetadata(doi)
+    
+                    # Attempt to get or create the literature record
+                    literature, _ = Literature.objects.get_or_create(
+                        doi=manuscript_metadata.get___doi(),
+                        defaults={
+                            'title': manuscript_metadata.get___title(),
+                            'publication_date': manuscript_metadata.get___publication_date(),
+                            'publication_name': manuscript_metadata.get___publication_name()
+                        }
+                    )
+                except IntegrityError:
+                    # Handle potential race condition or duplicate DOI
+                    literature = Literature.objects.get(doi=manuscript_metadata.get___doi())
+                except Exception as e:
+                    # Log or handle unexpected errors
+                    print(f"Error processing DOI {doi}: {str(e)}")
+                    continue
+                
+                # Add literature to the chemical instance
+                chemical.literature.add(literature)
+        
+        if nested_data['identifiers']:
+            Identifier.objects.create(**nested_data['identifiers'], chemical=chemical)
+        
+        if nested_data['physical_properties']:
+            PhysicalProperty.objects.create(**nested_data['physical_properties'], chemical=chemical)
+        
+        if nested_data['physicochemical_properties']:
+            PhysicochemicalProperty.objects.create(**nested_data['physicochemical_properties'], chemical=chemical)
+        
+        if nested_data['partition_coefficients']:
+            PartitionCoefficient.objects.create(**nested_data['partition_coefficients'], chemical=chemical)
+        
+        if nested_data['solubilities']:
+            Solubility.objects.create(**nested_data['solubilities'], chemical=chemical)
+        
+        if nested_data['qsar_scores']:
+            QsarScore.objects.create(**nested_data['qsar_scores'], chemical=chemical)
+        
+        if nested_data['druglike_rules']:
+            DrugLikeRule.objects.create(**nested_data['druglike_rules'], chemical=chemical)
+        
+        if nested_data['pharmacokinetics']:
+            Pharmacokinetics.objects.create(**nested_data['pharmacokinetics'], chemical=chemical)
+        
+        if nested_data['p450_inhibitors']:
+            P450Inhibition.objects.create(**nested_data['p450_inhibitors'], chemical=chemical)
+        
+        if nested_data['undesirable_substructure_alerts']:
+            UndesirableSubstructureAlert.objects.create(**nested_data['undesirable_substructure_alerts'], chemical=chemical)
+        
+        if nested_data['synonyms']:
+            for synonym_data in nested_data['synonyms']:
+                Synonym.objects.create(**synonym_data, chemical=chemical)
+
+        return chemical
     
     def update(self, instance, validated_data):
         validated_data.pop('api_id', None)
@@ -214,6 +317,7 @@ class ChemicalSerializer(serializers.ModelSerializer):
         model = Chemical
         fields = [
             'api_id',
+            'user',
             'created_at', 
             'chem_depiction_image', 
             'literature', 
@@ -230,6 +334,7 @@ class ChemicalSerializer(serializers.ModelSerializer):
             'synonym',
             'conformation',
         ]
+        read_only_fields=['api_id']
 
 class IdentifierAutocompleteSerializer(serializers.ModelSerializer):
     class Meta:

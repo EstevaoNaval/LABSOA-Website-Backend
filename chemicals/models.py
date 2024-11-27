@@ -78,7 +78,7 @@ class Identifier(HashAPIIdBaseModel):
     inchi = models.TextField()
     inchi_key = models.TextField()
     smiles = models.TextField()
-    slug = models.TextField()
+    slug = models.TextField(null=True, blank=True)
     chemical = models.OneToOneField(to=Chemical, on_delete=models.CASCADE, related_name='identifiers')
     
     def __clean_iupac_name(self, iupac_name):
