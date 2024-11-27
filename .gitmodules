@@ -1,0 +1,3 @@
+[submodule "libs/pdf2chemicals"]
+	path = libs/pdf2chemicals
+	url = git@github.com:molmodcs/pdf2chemicals.git
