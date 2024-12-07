@@ -1,14 +1,22 @@
 import os
-import requests
+from celery import shared_task
+
+from chemicals.tasks import post_chemical
 
 from django.conf import settings
 from django.core.files.storage import default_storage
 
-from celery import shared_task
-
 from libs.pdf2chemicals.pdf2chemicals import main
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=60, acks_late=True)
+@shared_task(
+    name='pdf2chemicals_service.tasks.heavy_task_extract_chemical_from_pdf', 
+    bind=True, 
+    max_retries=5, 
+    default_retry_delay=60, 
+    acks_late=True,
+    queue='heavy_tasks',
+    priority=1
+)
 def extract_chemical_from_pdf(self, user_id: int, pdf_path: str):
     absolute_pdf_path = os.path.join(settings.MEDIA_ROOT, pdf_path)
     
@@ -17,16 +25,6 @@ def extract_chemical_from_pdf(self, user_id: int, pdf_path: str):
     default_storage.delete(pdf_path)
     
     for chemical_data in chemical_data_list:
-        conf_files = chemical_data.pop('conformation', [])
+        post_chemical.apply_async(args=[chemical_data, user_id], priority=10)
         
-        chemical_data['user'] = user_id
-        
-        headers = {
-            'Authorization': 'Bearer {}'.format(settings.CELERY_AUTH_TOKEN)
-        }
-        
-        requests.post(
-            url=settings.API_BASE_URL+"/api/chemicals/admin/",
-            json=chemical_data,
-            headers=headers
-        )
+    del chemical_data_list

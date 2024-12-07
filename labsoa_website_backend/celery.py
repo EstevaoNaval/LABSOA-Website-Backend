@@ -1,11 +1,23 @@
 import os
 import logging
 from celery import Celery
+from kombu import Queue
 
 # Set the default Django settings module for the 'celery' program
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'labsoa_website_backend.settings')
 
 app = Celery('labsoa_website_backend')
+
+app.conf.task_queues = (
+    Queue('light_tasks', routing_key='light.#', max_priority=10),  # Alta prioridade
+    Queue('heavy_tasks', routing_key='heavy.#', max_priority=5),  # Baixa prioridade
+)
+
+app.conf.task_default_queue = 'light_tasks'  # Padrão para tasks leves
+app.conf.task_routes = {
+    'chemicals.tasks.light_task_*': {'queue': 'light_tasks'},
+    'pdf2chemicals_service.tasks.heavy_task_*': {'queue': 'heavy_tasks'},
+}
 
 # Load task modules from all registered Django apps
 app.config_from_object('django.conf:settings', namespace='CELERY')

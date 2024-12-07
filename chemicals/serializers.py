@@ -1,4 +1,7 @@
+import uuid
+
 from django.db import IntegrityError
+from django.core.files.base import ContentFile
 
 from rest_framework import serializers
 
@@ -181,15 +184,18 @@ class ChemicalSerializer(serializers.ModelSerializer):
         if nested_data['synonyms']:
             for synonym_data in nested_data['synonyms']:
                 Synonym.objects.create(**synonym_data, chemical=chemical)
+        
+        if nested_data['conformations']:
+            for conf in nested_data['conformations']:
+                conf['conf_file'].name = f"conf_{uuid.uuid4().hex}.sdf"
+                Conformation.objects.create(chemical=chemical, conf_file=conf['conf_file'])
 
         return chemical
     
     def update(self, instance, validated_data):
+        request = self.context.get('request')
+        
         validated_data.pop('api_id', None)
-        
-        instance.chem_depiction_image = validated_data.get('chem_depiction_image', instance.chem_depiction_image)
-        
-        instance.save()
         
         literature_data = validated_data.pop('literature', None)
         if literature_data is not None:
@@ -310,6 +316,25 @@ class ChemicalSerializer(serializers.ModelSerializer):
                     chemical = instance,
                     defaults = synonym_data
                 )
+        
+        if request and hasattr(request, 'FILES'):
+            conformations_files = request.FILES
+            
+            for key, files in conformations_files.lists():
+                if key.startswith("conformations") and "conf_file" in key:
+                    for conf in files:
+                        conf.name = f'conf_{uuid.uuid4().hex}.sdf'
+                        Conformation.objects.update_or_create(
+                            chemical=instance,
+                            conf_file=conf
+                        )
+                        
+                if 'depiction_image' in key:
+                    chem_depiction_image = files[0]
+                    chem_depiction_image.name = f'depiction_{uuid.uuid4().hex}.svg'
+                    instance.chem_depiction_image = chem_depiction_image
+        
+        instance.save()
         
         return instance
     

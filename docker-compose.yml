@@ -6,13 +6,15 @@ services:
         limits:
           cpus: "0.5"
           memory: "1G"
+    memswap_limit: 4G
     build:
       context: .
       dockerfile: Dockerfile
-    restart: always
+    restart: unless-stopped
     volumes:
       - .:/app
       - ./data:/app/data
+      - ./django-api-logs:/app/logs
       - media:/app/media
     ports:
       - "8000:8000"
@@ -23,20 +25,44 @@ services:
       - rabbitmq
       - memcached
 
+  light_tasks_worker:
+    build:
+      context: . # Usar o Dockerfile do pdf2chemicals
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: >
+      celery -A labsoa_website_backend worker --queues=light_tasks --prefetch-multiplier=1 --concurrency=1 --loglevel=INFO
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: "4G"
+    volumes:
+      - .:/app # Montar o código do Django e o app pdf_processor como volume
+      - ./data:/app/data
+      - media:/app/media
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+    depends_on:
+      - rabbitmq
+    logging:
+      driver: "json-file" # Default logging driver
+      options:
+        max-size: "10m" # Rotate logs after they reach 10 MB
+        max-file: "3" # Keep a maximum of 3 log files
+
   # Serviço Celery Worker para PDF (com acesso ao Django e ao pdf_processor)
-  chemicals_celery_worker:
+  heavy_tasks_celery_worker:
     build:
       context: . # Usar o Dockerfile do pdf2chemicals
       dockerfile: Dockerfile_Worker_Celery
-    restart: always
+    restart: unless-stopped
     deploy:
       resources:
         limits:
           cpus: "1.0"
           memory: "4G"
         reservations:
-          cpus: "0.5"
-          memory: "256M"
           devices:
             - driver: nvidia
               count: 1
@@ -62,14 +88,16 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
-          memory: "1G"
+          cpus: "1"
+          memory: "2G"
+    memswap_limit: 4G
     environment:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_DB: ${DATABASE_NAME}
     ports:
       - "5432:5432"
+    restart: unless-stopped
 
   memcached:
     image: "memcached:1.6"
@@ -80,6 +108,7 @@ services:
     ports:
       - "11211:11211"
     command: -m 512
+    restart: unless-stopped
 
   # Serviço RabbitMQ (broker de mensagens)
   rabbitmq:
@@ -89,9 +118,13 @@ services:
         limits:
           cpus: "1"
           memory: "1G"
+    memswap_limit: 4G
+    environment:
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit consumer_timeout 31622400000"
     ports:
       - "5672:5672" # Porta padrão do RabbitMQ
       - "15672:15672" # Porta para a interface de administração do RabbitMQ
+    restart: unless-stopped
 
   clam_container_01:
     container_name: clam_container_01
@@ -99,8 +132,9 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.2"
+          cpus: "0.5"
           memory: "3G"
+    memswap_limit: 4G
     ports:
       - "3310:3310"
       - "7357:7357"
@@ -113,3 +147,4 @@ volumes:
   media:
   clamav-data:
   clamav-logs:
+  django-api-logs:

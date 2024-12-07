@@ -27,20 +27,22 @@ class PDFSerializer(serializers.Serializer):
     
     def _get_file_signatures(self, file):
         # Usar diretamente o arquivo recebido (em memória)
-        file.seek(0)  # Garante que estamos lendo do início do arquivo
-        file_header = file.read(32)  # Lê os primeiros 32 bytes
-        file.seek(0)  # Voltar o cursor para o início após leitura
+        file.seek(0)
+        file_header = file.read(32)
+        file.seek(0)
             
         matches = find_matches_for_file_header(file_header=file_header)
         
         return matches
     
     def validate_pdf_files(self, value):
+        FILE_MAX_SIZE = 50 * 1024 * 1024
+        
         for file in value:
             if not file.name.endswith(".pdf") or not self._has_pdf_file_extension_signature(file):
                 raise serializers.ValidationError("The uploaded files must be in PDF file format.")
 
-            if file.size > 50 * 1024 * 1024: # Files with size greater than 50MB are not allowed.
-                raise serializers.ValidationError(f"{file.name} exceeds the size limit of 10 MB.")
+            if file.size > FILE_MAX_SIZE: # Files with size greater than 50MB are not allowed.
+                raise serializers.ValidationError(f"{file.name} exceeds the size limit of 50 MB.")
         
         return value

@@ -23,10 +23,14 @@ CORS_ALLOW_ALL_ORIGINS = True
 AUTH_USER_MODEL = 'user.User'
 
 CACHES = {
-    "default": {
-        "BACKEND": os.getenv('CACHES_BACKEND'),
-        "LOCATION": os.getenv('CACHES_LOCATION'),
+    "default" : {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
     }
+    
+    #"default": {
+    #    "BACKEND": os.getenv('CACHES_BACKEND'),
+    #    "LOCATION": os.getenv('CACHES_LOCATION'),
+    #}
 }
 
 INSTALLED_APPS = [
@@ -178,6 +182,11 @@ LOGGING = {
             'stream': sys.stdout,  # Log para stdout
             'formatter': 'verbose',
         },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
+        }
     },
     'root': {
         'handlers': ['console'],
@@ -185,7 +194,7 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'level': os.getenv("DJANGO_LOG_LEVEL", "INFO"),
             'propagate': True,
         },
@@ -209,7 +218,8 @@ CELERY_TASK_TRACK_STARTED = True
 CELERY_AUTH_TOKEN = os.getenv('CELERY_AUTH_TOKEN')
 CELERY_BROKER_TRANSPORT_OPTIONS = {
     'queue_durable': True,
-    'message_persistent': True
+    'message_persistent': True,
+    'heartbeat': 600
 }
 CELERY_TASK_ACKS_LATE = True
 CELERY_TASK_DEFAULT_DELIVERY_MODE = 'persistent'

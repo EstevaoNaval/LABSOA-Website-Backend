@@ -134,7 +134,13 @@ class SmilesSearchService(ExactSearch, SimilaritySearch, SubstructureSearch):
         SIMILARITY_THRESHOLD_TOP = 1.0
         
         return queryset.select_related('identifiers').annotate(
-            bingo_similarity=BingoSimilaritySearch(F('identifiers__smiles'), parameters['similarity_threshold'], SIMILARITY_THRESHOLD_TOP, query, SIMILARITY_METRIC)
+            bingo_similarity=BingoSimilaritySearch(
+                F('identifiers__smiles'), 
+                parameters['similarity_threshold'], 
+                SIMILARITY_THRESHOLD_TOP, 
+                query, 
+                SIMILARITY_METRIC
+            )
         ).filter(
             Q(bingo_similarity=True)
         ).order_by(
@@ -172,7 +178,12 @@ class FormulaSearchService(ExactSearch):
         formula_query = '= {}'.format(separated_formula)
         
         return queryset.select_related('identifiers').annotate(
-            bingo_gross_formula = BingoSearch(F('identifiers__smiles'), 'bingo.gross', formula_query, '')
+            bingo_gross_formula = BingoSearch(
+                F('identifiers__smiles'), 
+                'bingo.gross', 
+                formula_query, 
+                ''
+            )
         ).filter(
             Q(bingo_gross_formula=True)
         ).order_by(

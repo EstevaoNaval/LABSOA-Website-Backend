@@ -40,7 +40,7 @@ class PDFUploadView(APIView):
                     temp_files.append(file_path)
                     
                     # Enfileira para processamento
-                    extract_chemical_from_pdf.delay(user.id, file_path)
+                    extract_chemical_from_pdf.apply_async(args=[user.id, file_path], priority=10)
 
                 return Response(
                     {"message": f"{len(uploaded_files)} files enqueued for processing."},
