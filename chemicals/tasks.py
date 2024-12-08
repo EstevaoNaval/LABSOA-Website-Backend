@@ -7,11 +7,13 @@ from celery import shared_task
 
 @shared_task(
     name='chemicals.tasks.light_task_patch_conformation', 
-    bind=True, 
-    max_retries=5, 
-    default_retry_delay=60,
+    bind=True,
     queue='light_tasks',
-    priority=10
+    priority=10,
+    autoretry_for=(Exception,),
+    retry_kwargs={'max_retries': 5, 'countdown': 60},
+    retry_backoff=True,
+    task_reject_on_worker_lost=True
 )
 def patch_conformation(self, chemical_id: str, conformations: list[str]):
     files = {}
@@ -36,10 +38,12 @@ def patch_conformation(self, chemical_id: str, conformations: list[str]):
 @shared_task(
     name='chemicals.tasks.light_task_patch_depiction', 
     bind=True, 
-    max_retries=5, 
-    default_retry_delay=60,
     queue='light_tasks',
-    priority=10
+    priority=10,
+    autoretry_for=(Exception,),
+    retry_kwargs={'max_retries': 5, 'countdown': 60},
+    retry_backoff=True,
+    task_reject_on_worker_lost=True
 )
 def patch_depiction(self, chemical_id, depiction: str):
     files = {}
@@ -63,10 +67,12 @@ def patch_depiction(self, chemical_id, depiction: str):
 @shared_task(
     name='chemicals.tasks.light_task_post_chemical', 
     bind=True, 
-    max_retries=5, 
-    default_retry_delay=60,
     queue='light_tasks',
-    priority=10
+    priority=10,
+    autoretry_for=(Exception,),
+    retry_kwargs={'max_retries': 5, 'countdown': 60},
+    retry_backoff=True,
+    task_reject_on_worker_lost=True
 )
 def post_chemical(self, chemical: dict, user_id: int):
     conformations = chemical.pop('conformation', [])

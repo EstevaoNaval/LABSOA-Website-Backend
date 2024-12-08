@@ -10,12 +10,14 @@ from libs.pdf2chemicals.pdf2chemicals import main
 
 @shared_task(
     name='pdf2chemicals_service.tasks.heavy_task_extract_chemical_from_pdf', 
-    bind=True, 
-    max_retries=5, 
-    default_retry_delay=60, 
+    bind=True,  
     acks_late=True,
     queue='heavy_tasks',
-    priority=1
+    priority=1,
+    autoretry_for=(Exception,),
+    retry_kwargs={'max_retries': 5, 'countdown': 60},
+    retry_backoff=True,
+    task_reject_on_worker_lost=True
 )
 def extract_chemical_from_pdf(self, user_id: int, pdf_path: str):
     absolute_pdf_path = os.path.join(settings.MEDIA_ROOT, pdf_path)
