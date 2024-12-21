@@ -19,3 +19,4 @@ email-validator==2.2.0
 bcrypt==4.2.0
 pyfsig==1.0.0
 django-clamd==1.0.0
+watchdog==6.0.0

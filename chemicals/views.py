@@ -1,8 +1,14 @@
+from zipfile import ZipFile, ZIP_DEFLATED
+from io import BytesIO
+import gzip
+
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from django.shortcuts import get_object_or_404, get_list_or_404
+from django.http import FileResponse
 
 from rest_framework import viewsets, permissions, filters
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -13,7 +19,8 @@ from .serializers import (
     ChemicalPropListSerializer
 )
 from .models import (
-    Chemical                    
+    Chemical,
+    Conformation                    
 )
 from .pagination import PropListPagination
 
@@ -37,6 +44,39 @@ ORDERING_FIELDS_LIST = [
     'physical_properties__mp_upper_bound',
     'created_at'
 ]
+
+class DownloadChemicalConformationZipSerializer(RetrieveAPIView):
+    lookup_field = 'api_id'
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['api_id']
+    ordering = ['api_id']
+    permission_classes = [permissions.AllowAny]
+    
+    def confs_2_zipfile(self, confs: list):
+        zip_buffer = BytesIO()
+        
+        with ZipFile(file=zip_buffer, mode='w', compression=ZIP_DEFLATED) as zip_file:
+            for idx, conf in enumerate(confs):
+                zip_file.writestr(f'conf_{idx}.sdf', conf.conf_file.read())
+        
+        zip_buffer.seek(0)
+        
+        return zip_buffer
+    
+    @method_decorator(cache_page(CACHE_TTL))
+    def retrieve(self, request, chemical_api_id, *args, **kwargs):
+        chemical = get_object_or_404(Chemical, api_id=chemical_api_id)
+        
+        conformations = get_list_or_404(Conformation, chemical=chemical)
+        
+        confs_zipfile = self.confs_2_zipfile(conformations)
+        
+        return FileResponse(
+            confs_zipfile,
+            filename=f'{chemical_api_id}_confs.zip',
+            content_type='application/zip', 
+            as_attachment=True
+        )
 
 class ChemicalPropListView(ListAPIView):
     pagination_class = PropListPagination

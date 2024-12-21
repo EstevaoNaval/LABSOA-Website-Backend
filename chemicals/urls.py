@@ -7,7 +7,8 @@ from .views import (
     AutocompleteSearchView,
     ChemicalSummaryReadOnlyViewSet,
     ChemicalSearchView,
-    ChemicalSearchSummaryView
+    ChemicalSearchSummaryView,
+    DownloadChemicalConformationZipSerializer
 )
 
 router = DefaultRouter()
@@ -20,5 +21,6 @@ urlpatterns = [
     path(route='autocomplete/', view=AutocompleteSearchView.as_view(), name='autocomplete-search'),
     path(route='search/', view=ChemicalSearchView.as_view(), name='search'),
     path(route='search/summary/', view=ChemicalSearchSummaryView.as_view(), name='search-summary'),
+    path(route='conformations/zip/<str:chemical_api_id>/', view=DownloadChemicalConformationZipSerializer.as_view(), name='download-confs-as-zip'),
     path('', include(router.urls))
 ]

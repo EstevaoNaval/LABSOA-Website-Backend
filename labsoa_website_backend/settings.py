@@ -26,11 +26,6 @@ CACHES = {
     "default" : {
         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
     }
-    
-    #"default": {
-    #    "BACKEND": os.getenv('CACHES_BACKEND'),
-    #    "LOCATION": os.getenv('CACHES_LOCATION'),
-    #}
 }
 
 INSTALLED_APPS = [

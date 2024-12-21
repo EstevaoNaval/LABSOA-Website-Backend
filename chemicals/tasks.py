@@ -94,4 +94,3 @@ def post_chemical(self, chemical: dict, user_id: int):
     
     patch_conformation.apply_async(args=[chemical_id, conformations], priority=10)
     patch_depiction.apply_async(args=[chemical_id, chem_depiction_image], priority=10)
-    

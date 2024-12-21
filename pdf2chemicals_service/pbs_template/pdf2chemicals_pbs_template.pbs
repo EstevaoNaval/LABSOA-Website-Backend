@@ -1,0 +1,42 @@
+#!/bin/bash
+#PBS -N pdf2chemicals_{{job_id}}
+#PBS -l select=1:ncpus=1:ngpus=1
+#PBS -l walltime=168:00:00
+
+# Configurar variáveis de ambiente para Java
+export JAVA_HOME={{JAVA_HOME}}
+export PATH=$JAVA_HOME/bin:$PATH
+
+# Ir para o diretório de trabalho
+cd $PBS_O_WORKDIR || { echo "Failed to change to PBS_O_WORKDIR"; exit 1; }
+
+# Inicializar Conda para bash
+eval "$(conda shell.bash hook)"
+
+# Ativar ambiente Conda
+conda activate {{conda_env}}
+
+nvidia-smi
+if [ $? -ne 0 ]; then
+    echo "Error: GPU not available."
+    exit 1
+fi
+
+# Verificar se o ambiente foi ativado corretamente
+if [ $? -ne 0 ]; then
+    echo "Error activating conda environment {{conda_env}}"
+    exit 1
+fi
+
+# Verificar se Java está disponível
+java -version
+if [ $? -ne 0 ]; then
+    echo "Error checking Java installation"
+    exit 1
+fi
+
+# Executar o script principal
+python {{pdf2chemicals_path}} "{{pdf_path}}" "{{output_dir}}" "{{json_prefix}}"
+
+# Desativar ambiente Conda
+conda deactivate

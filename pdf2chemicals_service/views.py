@@ -1,18 +1,21 @@
-import os
-import sys
+from celery import chain, group
 
 from django.core.files.storage import default_storage
-from user.models import User
-from django.conf import settings
 
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
+from user.models import User
+from chemicals.tasks import post_chemical
 from .util.util import generate_random_alphanumeric_sequence
 from .serializers import PDFSerializer
-from .tasks import extract_chemical_from_pdf
+from .tasks import (
+    extract_chemical_from_pdf,
+    monitor_json_file,
+    load_chemical_from_json
+)
 
 FILE_RANDOM_NAME_SIZE = 10
 
@@ -34,13 +37,20 @@ class PDFUploadView(APIView):
                 
                 for file in uploaded_files:
                     # Salva cada arquivo como temporário
-                    file_path = default_storage.save(f"tmp_pdfs/{generate_random_alphanumeric_sequence(FILE_RANDOM_NAME_SIZE)}.pdf", file)
+                    pdf_file_path = default_storage.save(f"tmp_pdfs/{generate_random_alphanumeric_sequence(FILE_RANDOM_NAME_SIZE)}.pdf", file)
 
                     #file_url = default_storage.url(file_path)
-                    temp_files.append(file_path)
+                    temp_files.append(pdf_file_path)
                     
                     # Enfileira para processamento
-                    extract_chemical_from_pdf.apply_async(args=[user.id, file_path], priority=10)
+                    chain(
+                        extract_chemical_from_pdf.s(pdf_file_path),
+                        monitor_json_file.s(),
+                        load_chemical_from_json.s(),
+                        lambda chemical_list: group(post_chemical.s(chemical, user.id) for chemical in chemical_list)
+                    )()
+                    
+                    #extract_chemical_from_pdf.apply_async(args=[user.id, pdf_file_path], priority=10)
 
                 return Response(
                     {"message": f"{len(uploaded_files)} files enqueued for processing."},
