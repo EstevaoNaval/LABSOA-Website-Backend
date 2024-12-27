@@ -1,4 +1,3 @@
-version: "3"
 services:
   # Serviço do Django (web)
   django-api:
@@ -102,7 +101,8 @@ services:
         limits:
           cpus: "1"
           memory: "2G"
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    command: >
+      redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis-data:/data
     ports:
