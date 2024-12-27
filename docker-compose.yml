@@ -1,4 +1,4 @@
-version: "3.1"
+version: "3"
 services:
   # Serviço do Django (web)
   django-api:
@@ -7,7 +7,6 @@ services:
         limits:
           cpus: "0.5"
           memory: "1G"
-    memswap_limit: 4G
     build:
       context: .
       dockerfile: Dockerfile
@@ -88,7 +87,6 @@ services:
         limits:
           cpus: "1"
           memory: "2G"
-    memswap_limit: 4G
     environment:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_USER: ${DATABASE_USER}
@@ -121,7 +119,6 @@ services:
         limits:
           cpus: "1"
           memory: "1G"
-    memswap_limit: 4G
     environment:
       RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit consumer_timeout 31622400000"
     ports:
@@ -137,7 +134,6 @@ services:
         limits:
           cpus: "0.5"
           memory: "3G"
-    memswap_limit: 4G
     ports:
       - "3310:3310"
       - "7357:7357"
