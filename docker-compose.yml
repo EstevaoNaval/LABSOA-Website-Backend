@@ -23,7 +23,7 @@ services:
     depends_on:
       - labsoadb
       - rabbitmq
-      - memcached
+      - redis
 
   django_tasks_worker:
     build:
