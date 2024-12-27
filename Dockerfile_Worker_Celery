@@ -35,4 +35,4 @@ RUN pip install -e libs/pdf2chemicals && \
     python -m spacy download en_core_web_trf && \
     pip install --no-cache-dir -r /tmp/requirements.txt
 
-CMD ["celery", "-A", "labsoa_website_backend", "worker", "--queues=heavy_tasks", "--prefetch-multiplier=1", "--autoscale=2,1", "--max-tasks-per-child=1", "--loglevel=INFO"]
+CMD ["celery", "-A", "labsoa_website_backend", "worker", "--queues=pdf2chemicals_tasks", "--prefetch-multiplier=1", "--autoscale=2,1", "--max-tasks-per-child=1", "--loglevel=INFO"]

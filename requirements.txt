@@ -13,7 +13,7 @@ django-celery-results==2.5.1
 django-filter==24.3
 psycopg==3.2.3
 psycopg-binary==3.2.3
-pymemcache==4.0.0
+redis[hiredis]==5.2.1
 django-rest-knox==5.0.2
 email-validator==2.2.0
 bcrypt==4.2.0

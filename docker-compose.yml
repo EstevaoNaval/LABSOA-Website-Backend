@@ -25,17 +25,17 @@ services:
       - rabbitmq
       - memcached
 
-  light_tasks_worker:
+  django_tasks_worker:
     build:
       context: . # Usar o Dockerfile do pdf2chemicals
       dockerfile: Dockerfile
     restart: unless-stopped
     command: >
-      celery -A labsoa_website_backend worker --queues=light_tasks --prefetch-multiplier=1 --concurrency=1 --loglevel=INFO
+      celery -A labsoa_website_backend worker --queues=django_tasks --prefetch-multiplier=1 --concurrency=1 --loglevel=INFO
     deploy:
       resources:
         limits:
-          cpus: "1.0"
+          cpus: "2"
           memory: "4G"
     volumes:
       - .:/app # Montar o código do Django e o app pdf_processor como volume
@@ -52,21 +52,18 @@ services:
         max-file: "3" # Keep a maximum of 3 log files
 
   # Serviço Celery Worker para PDF (com acesso ao Django e ao pdf_processor)
-  heavy_tasks_celery_worker:
+  pdf2chemicals_tasks_celery_worker:
     build:
       context: . # Usar o Dockerfile do pdf2chemicals
-      dockerfile: Dockerfile_Worker_Celery
+      dockerfile: Dockerfile
     restart: unless-stopped
+    command: >
+      celery -A labsoa_website_backend worker --queues=pdf2chemicals_tasks --prefetch-multiplier=1 --autoscale=3,1 --max-tasks-per-child=1 --loglevel=INFO
     deploy:
       resources:
         limits:
-          cpus: "1.0"
+          cpus: "2"
           memory: "4G"
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
     volumes:
       - .:/app # Montar o código do Django e o app pdf_processor como volume
       - ./data:/app/data
@@ -99,15 +96,20 @@ services:
       - "5432:5432"
     restart: unless-stopped
 
-  memcached:
-    image: "memcached:1.6"
+  redis:
+    image: redis:7.2.4
     deploy:
       resources:
         limits:
-          cpus: "0.2"
+          cpus: "1"
+          memory: "2G"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
     ports:
-      - "11211:11211"
-    command: -m 512
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     restart: unless-stopped
 
   # Serviço RabbitMQ (broker de mensagens)
@@ -144,6 +146,7 @@ services:
     restart: unless-stopped
 
 volumes:
+  redis-data:
   media:
   clamav-data:
   clamav-logs:

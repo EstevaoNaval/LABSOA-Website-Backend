@@ -6,9 +6,9 @@ from django.conf import settings
 from celery import shared_task
 
 @shared_task(
-    name='chemicals.tasks.light_task_patch_conformation', 
+    name='chemicals.tasks.django_tasks_patch_conformation', 
     bind=True,
-    queue='light_tasks',
+    queue='django_tasks',
     priority=10,
     autoretry_for=(Exception,),
     retry_kwargs={'max_retries': 5, 'countdown': 60},
@@ -36,9 +36,9 @@ def patch_conformation(self, chemical_id: str, conformations: list[str]):
     r.raise_for_status()
 
 @shared_task(
-    name='chemicals.tasks.light_task_patch_depiction', 
+    name='chemicals.tasks.django_tasks_patch_depiction', 
     bind=True, 
-    queue='light_tasks',
+    queue='django_tasks',
     priority=10,
     autoretry_for=(Exception,),
     retry_kwargs={'max_retries': 5, 'countdown': 60},
@@ -65,9 +65,9 @@ def patch_depiction(self, chemical_id, depiction: str):
     r.raise_for_status()
 
 @shared_task(
-    name='chemicals.tasks.light_task_post_chemical', 
+    name='chemicals.tasks.django_tasks_post_chemical', 
     bind=True, 
-    queue='light_tasks',
+    queue='django_tasks',
     priority=10,
     autoretry_for=(Exception,),
     retry_kwargs={'max_retries': 5, 'countdown': 60},

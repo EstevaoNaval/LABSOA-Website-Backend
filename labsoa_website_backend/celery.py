@@ -9,14 +9,14 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'labsoa_website_backend.settings
 app = Celery('labsoa_website_backend')
 
 app.conf.task_queues = (
-    Queue('light_tasks', routing_key='light.#', max_priority=10),  # Alta prioridade
-    Queue('heavy_tasks', routing_key='heavy.#', max_priority=5),  # Baixa prioridade
+    Queue('django_tasks', routing_key='light.#', max_priority=10),  # Alta prioridade
+    Queue('pdf2chemicals_tasks', routing_key='heavy.#', max_priority=5),  # Baixa prioridade
 )
 
-app.conf.task_default_queue = 'light_tasks'  # Padrão para tasks leves
+app.conf.task_default_queue = 'django_tasks'  # Padrão para tasks leves
 app.conf.task_routes = {
-    'chemicals.tasks.light_task_*': {'queue': 'light_tasks'},
-    'pdf2chemicals_service.tasks.heavy_task_*': {'queue': 'heavy_tasks'},
+    'chemicals.tasks.light_task_*': {'queue': 'django_tasks'},
+    'pdf2chemicals_service.tasks.heavy_task_*': {'queue': 'pdf2chemicals_tasks'},
 }
 
 # Load task modules from all registered Django apps
