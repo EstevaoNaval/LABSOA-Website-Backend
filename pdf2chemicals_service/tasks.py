@@ -23,19 +23,35 @@ from .cluster import (
     queue='pdf2chemicals_tasks',
     priority=1,
     autoretry_for=(Exception,),
-    retry_kwargs={'max_retries': None, 'countdown': 60 * 2 }, # Waits 2 minutes to retry
+    max_retries=None,
+    default_retry_delay=60 * 2, # Waits 2 minutes to execute 
     retry_backoff=True,
     task_reject_on_worker_lost=True
 )
-def extract_and_save_chemicals_from_pdf(pdf_path: str, email: str):
+def extract_and_save_chemicals_from_pdf(self, pdf_path: str, email: str):
     user = User.objects.get(email=email)
     
     chain(
-        send_pdf2chemicals_hpc_task.s(pdf_path, email),
+        send_pdf2chemicals_hpc_task.s(pdf_path=pdf_path, email=email),
         monitor_pdf2chemicals_job.s(),
         load_chemical_from_json.s(),
-        lambda chemical_list: group(post_chemical.s(chemical, user.id) for chemical in chemical_list)
+        process_chemical_list.s(user.id)
     )()
+
+@shared_task(
+    name='pdf2chemicals_service.tasks.pdf2chemicals_tasks_process_chemical_list', 
+    bind=True,  
+    acks_late=True,
+    queue='pdf2chemicals_tasks',
+    priority=1,
+    autoretry_for=(Exception,),
+    max_retries=None,
+    default_retry_delay=60 * 2, # Waits 2 minutes to execute 
+    retry_backoff=True,
+    task_reject_on_worker_lost=True
+)
+def process_chemical_list(chemical_list, user_id):
+    return group(post_chemical.s(chemical, user_id) for chemical in chemical_list)
 
 @shared_task(
     name='pdf2chemicals_service.tasks.pdf2chemicals_tasks_send_pdf2chemicals_hpc_task', 
@@ -44,11 +60,12 @@ def extract_and_save_chemicals_from_pdf(pdf_path: str, email: str):
     queue='pdf2chemicals_tasks',
     priority=1,
     autoretry_for=(Exception,),
-    retry_kwargs={'max_retries': None, 'countdown': 60 * 2}, # Waits 2 minutes to retry
+    max_retries=None,
+    default_retry_delay=60 * 2, # Waits 2 minutes to execute 
     retry_backoff=True,
     task_reject_on_worker_lost=True
 )
-def send_pdf2chemicals_hpc_task(self, **kwargs):
+def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
     JSON_FILENAME_LENGTH = 10
     
     json_dir = settings.MEDIA_ROOT / 'json'
@@ -71,6 +88,8 @@ def send_pdf2chemicals_hpc_task(self, **kwargs):
         json_prefix=json_prefix,
         node_name=node_name
     )
+    
+    print(script_path)
     
     cmd = ['qsub', script_path]
     
@@ -102,7 +121,8 @@ def send_pdf2chemicals_hpc_task(self, **kwargs):
     queue='pdf2chemicals_tasks',
     priority=1,
     autoretry_for=(Exception,),
-    retry_kwargs={'max_retries': None, 'countdown': 60 * 2 }, # Waits 2 minutes to retry
+    max_retries=None,
+    default_retry_delay=60 * 2, # Waits 2 minutes to execute 
     retry_backoff=True,
     task_reject_on_worker_lost=True
 )
@@ -110,7 +130,7 @@ def monitor_pdf2chemicals_job(self, **kwargs):
     """
     Task to monitor the directory and detect the JSON file.
     """
-    if not is_pbs_job_completed(kwargs['pbs_job_id']):
+    if not is_pbs_job_completed(kwargs['job_id']):
         self.retry()
     
     cluster_node_manager = ClusterNodeManager()
@@ -130,7 +150,8 @@ def monitor_pdf2chemicals_job(self, **kwargs):
     queue='pdf2chemicals_tasks',
     priority=10,
     autoretry_for=(Exception,),
-    retry_kwargs={'max_retries': 5, 'countdown': 60},
+    max_retries=5,
+    default_retry_delay=60 * 2, # Waits 2 minutes to execute 
     retry_backoff=True,
     task_reject_on_worker_lost=True
 )

@@ -1,7 +1,11 @@
+import re
 import os
 import fnmatch
 import requests
 from datetime import date
+from random import choices
+from string import digits
+from django.core.exceptions import ValidationError
 
 def find_files(directory, extension):
     """
@@ -69,3 +73,13 @@ class ManuscriptMetadata():
     def __get_publication_date_from_date_parts(self, date_parts: list):
         year, month, day = (date_parts + [1, 1, 1])[:3]
         return date(year, month, day)
+    
+
+def generate_random_sequence(length=10):
+    return ''.join(choices(digits, k=length))
+
+def validate_hex_color(value):
+    HEXADECIMAL_COLOR_REGEX = re.compile(r'^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$', flags=re.IGNORECASE)
+    
+    if not HEXADECIMAL_COLOR_REGEX.fullmatch(value):
+        raise ValidationError('{} is not a hexadecimal color'.format(value))

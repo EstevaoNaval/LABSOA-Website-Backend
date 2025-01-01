@@ -4,9 +4,6 @@ from io import StringIO
 from rdkit import Chem, rdBase
 from rdkit.Chem import AllChem
 from chempy import Substance
-from random import choices
-from string import digits
-from django.core.exceptions import ValidationError
 
 class RepresentationDetector:
     @staticmethod
@@ -110,12 +107,3 @@ class CitationDetector:
         REGEX_DOI = re.compile(r'\b(10[.][0-9]{4,}(?:[.][0-9]+)*\/(?:(?![\"\&\'])\S)+)\b', flags = re.IGNORECASE | re.MULTILINE)
         
         return True if REGEX_DOI.match(query) is not None else False
-
-def generate_random_sequence(length=10):
-    return ''.join(choices(digits, k=length))
-
-def validate_hex_color(value):
-    HEXADECIMAL_COLOR_REGEX = re.compile(r'^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$', flags=re.IGNORECASE)
-    
-    if not HEXADECIMAL_COLOR_REGEX.fullmatch(value):
-        raise ValidationError('{} is not a hexadecimal color'.format(value))

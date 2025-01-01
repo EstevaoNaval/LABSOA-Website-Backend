@@ -1,18 +1,11 @@
 import uuid
 
 from django.db import IntegrityError
-from django.core.files.base import ContentFile
 
 from rest_framework import serializers
 
 from .models import *
 from .util.util import ManuscriptMetadata
-
-class DownloadChemicalConformationZipSerializer(serializers.BaseSerializer):
-    confs_zip = serializers.FileField()
-    
-    def to_representation(self, instance):
-        return super().to_representation(instance)
 
 class LiteratureSerializer(serializers.ModelSerializer):
     doi = serializers.CharField(validators=[])

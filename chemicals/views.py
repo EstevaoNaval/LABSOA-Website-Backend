@@ -1,17 +1,19 @@
 from zipfile import ZipFile, ZIP_DEFLATED
 from io import BytesIO
-import gzip
 
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.http import FileResponse
+from django.http.response import HttpResponseNotFound
 
 from rest_framework import viewsets, permissions, filters
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
 from django_filters.rest_framework import DjangoFilterBackend
 
+from .util.export import BaseExportView
+from .util.util import generate_random_sequence
 from .serializers import (
     ChemicalAutocompleteSerializer, 
     ChemicalSerializer, 
@@ -45,7 +47,7 @@ ORDERING_FIELDS_LIST = [
     'created_at'
 ]
 
-class DownloadChemicalConformationZipSerializer(RetrieveAPIView):
+class DownloadChemicalConformationZipView(RetrieveAPIView):
     lookup_field = 'api_id'
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['api_id']
@@ -64,8 +66,8 @@ class DownloadChemicalConformationZipSerializer(RetrieveAPIView):
         return zip_buffer
     
     @method_decorator(cache_page(CACHE_TTL))
-    def retrieve(self, request, chemical_api_id, *args, **kwargs):
-        chemical = get_object_or_404(Chemical, api_id=chemical_api_id)
+    def retrieve(self, request, api_id, *args, **kwargs):
+        chemical = get_object_or_404(Chemical, api_id=api_id)
         
         conformations = get_list_or_404(Conformation, chemical=chemical)
         
@@ -73,18 +75,34 @@ class DownloadChemicalConformationZipSerializer(RetrieveAPIView):
         
         return FileResponse(
             confs_zipfile,
-            filename=f'{chemical_api_id}_confs.zip',
+            filename=f'{api_id}_confs.zip',
             content_type='application/zip', 
             as_attachment=True
         )
 
+class ChemicalExportView(BaseExportView, ListAPIView):
+    queryset = Chemical.objects.all()
+    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
+    filterset_class = ChemicalAdvancedSearchFilter
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def list(self, request, export_format, *args, **kwargs):
+        filename = f"compounds_{generate_random_sequence()}.{export_format}"
+        
+        queryset = self.filter_queryset(self.get_queryset())
+        
+        if not queryset.exists():
+            return HttpResponseNotFound({"detail": "No chemicals available for export."})
+
+        self.validate_format(export_format)
+        return self.generate_file_response(queryset, export_format, filename)
+    
 class ChemicalPropListView(ListAPIView):
     pagination_class = PropListPagination
     serializer_class = ChemicalPropListSerializer
     ordering = ['api_id']
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
     filterset_class = ChemicalAdvancedSearchFilter
-    
     
     def get_queryset(self):
         queryset = Chemical.objects.all()
@@ -157,7 +175,7 @@ class AutocompleteSearchView(ListAPIView):
     serializer_class = ChemicalAutocompleteSerializer
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_class = ChemicalAutocompleteSearchFilter
-
+    
 class ChemicalReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Chemical.objects.all()
     serializer_class = ChemicalSerializer

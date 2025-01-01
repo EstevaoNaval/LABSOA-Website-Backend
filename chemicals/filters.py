@@ -168,16 +168,7 @@ class ChemicalAdvancedSearchFilter(django_filters.FilterSet):
     count_pains_alert__lte = django_filters.NumberFilter(field_name='undesirable_substructure_alerts__count_pains_alert', lookup_expr='lte')
     
     count_brenk_alert__gte = django_filters.NumberFilter(field_name='undesirable_substructure_alerts__count_brenk_alert', lookup_expr='gte')
-    count_brenk_alert__lte = django_filters.NumberFilter(field_name='undesirable_substructure_alerts__count_brenk_alert', lookup_expr='lte')
-    
-    # Model ToxicityPrediction
-    '''cardiotoxicity_prediction = django_filters.BooleanFilter(field_name='toxicity_predictions__cardiotoxicity_prediction')
-    
-    hepatotoxicity_prediction = django_filters.BooleanFilter(field_name='toxicity_predictions__hepatotoxicity_prediction')
-    
-    ames_mutagenesis_prediction = django_filters.BooleanFilter(field_name='toxicity_predictions__ames_mutagenesis_prediction')'''
-    
-    
+    count_brenk_alert__lte = django_filters.NumberFilter(field_name='undesirable_substructure_alerts__count_brenk_alert', lookup_expr='lte') 
     
     class Meta:
         model = Chemical

@@ -1,4 +1,4 @@
-# myapp/management/commands/import_chemicals.py
+# chemicals/management/commands/import_chemicals.py
 import csv
 import logging
 import os
@@ -6,6 +6,7 @@ from pathlib import Path
 from django.core.management.base import BaseCommand
 from django.core.files import File
 from django.db import transaction
+from user.models import User
 from chemicals.models import *
 from .utils import find_files, is_numeric, ManuscriptMetadata
 
@@ -44,14 +45,18 @@ class Command(BaseCommand):
                                 }
                             )
                         
+                        user = User.objects.get(email='carlos.costa@gmail.com')
+                        
                         chemical_depiction_image_base_file_path = os.path.join(chem_confs_base_path, row.get('id'))
                         depiction_files = find_files(chemical_depiction_image_base_file_path, CHEMICAL_DEPICTION_IMAGE_FILE_FORMAT)
                         for depiction_file_path in depiction_files:
                             depiction_filename = os.path.basename(depiction_file_path)
                             with open(depiction_file_path, 'r') as depiction_file:
-                                chemical = Chemical.objects.create(chem_depiction_image=File(depiction_file, name=depiction_filename))
+                                chemical = Chemical.objects.create(chem_depiction_image=File(depiction_file, name=depiction_filename), user=user)
                                 if literature:
                                     chemical.literature.set([literature])
+                        
+                        print(chemical)
                         
                         Identifier.objects.update_or_create(
                             chemical=chemical,

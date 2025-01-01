@@ -8,7 +8,7 @@ import os
 
 from user.models import User
 
-from .utils import generate_random_sequence, validate_hex_color
+from .util.util import generate_random_sequence, validate_hex_color
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(editable=False, auto_now_add=True)
