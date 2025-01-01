@@ -20,6 +20,8 @@ ALLOWED_HOSTS = [
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+CORS_EXPOSE_HEADERS = ["content-disposition"]
+
 AUTH_USER_MODEL = 'user.User'
 
 CACHES = {

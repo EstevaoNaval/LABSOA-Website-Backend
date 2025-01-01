@@ -25,9 +25,11 @@ class BaseExportView:
         
         file_buffer = export_service.export(queryset)
         
-        return FileResponse(
+        response = FileResponse(
             file_buffer,
-            as_attachment=True, 
-            content_type=self.content_type_mapping[export_format], 
+            content_type=self.content_type_mapping[export_format],
+            as_attachment=True,
             filename=filename
         )
+        
+        return response
