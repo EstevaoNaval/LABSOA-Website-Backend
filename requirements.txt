@@ -20,3 +20,4 @@ bcrypt==4.2.0
 pyfsig==1.0.0
 django-clamd==1.0.0
 django-import-export[all]==4.3.3
+django-import-export-extensions==1.2.0

@@ -170,19 +170,28 @@ class ChemicalAdvancedSearchFilter(django_filters.FilterSet):
     count_brenk_alert__gte = django_filters.NumberFilter(field_name='undesirable_substructure_alerts__count_brenk_alert', lookup_expr='gte')
     count_brenk_alert__lte = django_filters.NumberFilter(field_name='undesirable_substructure_alerts__count_brenk_alert', lookup_expr='lte') 
     
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+    
     class Meta:
         model = Chemical
         fields = []
         
     def filter_by_representation_and_search_type(self, queryset, name, value):
-        representation_type = self.request.query_params.get('representation_type', '')
+        if self.request and hasattr(self.request, 'query_params'):
+            params = self.request.query_params
+        else:
+            params = self.data
+        
+        representation_type = params.get('representation_type', '')
         representation_type = representation_type if representation_type != '' else RepresentationDetector.detect_type(value)
         
-        search_type = self.request.query_params.get('search_type', '')
+        search_type = params.get('search_type', '')
         search_type = search_type if search_type != '' else self._determine_search_type(representation_type)
         
         similarity_threshold = CHEMICAL_REPRESENTATION_SIMILARITY_SEARCH_THRESHOLD if representation_type == 'smiles' else FULLTEXT_SIMILARITY_SEARCH_THRESHOLD
-        threshold = float(self.request.query_params.get('similarity_threshold', similarity_threshold))
+        threshold = float(params.get('similarity_threshold', similarity_threshold))
          
         try:
             service = SearchServiceFactory.get_service(representation_type)
@@ -195,10 +204,15 @@ class ChemicalAdvancedSearchFilter(django_filters.FilterSet):
             return queryset.none()
     
     def fiter_by_citation(self, queryset, name, value):
-        citation_type = self.request.query_params.get('citation_type', '')
+        if self.request and hasattr(self.request, 'query_params'):
+            params = self.request.query_params
+        else:
+            params = self.data
+        
+        citation_type = params.get('citation_type', '')
         citation_type = citation_type if citation_type != '' else CitationDetector.detect_type(value)
         
-        similarity_threshold = float(self.request.query_params.get('similarity_threshold', FULLTEXT_SIMILARITY_SEARCH_THRESHOLD))
+        similarity_threshold = float(params.get('similarity_threshold', FULLTEXT_SIMILARITY_SEARCH_THRESHOLD))
         
         search_type = self._determine_citation_search_type(citation_type)
         
@@ -232,9 +246,14 @@ class ChemicalAdvancedSearchFilter(django_filters.FilterSet):
         return search_map.get(citation_type, 'exact')
     
     def filter_by_title(self, queryset, name, value):
-        search_type = self.request.query_params.get('search_type', 'similarity')
+        if self.request and hasattr(self.request, 'query_params'):
+            params = self.request.query_params
+        else:
+            params = self.data
         
-        threshold = float(self.request.query_params.get('similarity_threshold', FULLTEXT_SIMILARITY_SEARCH_THRESHOLD))
+        search_type = params.get('search_type', 'similarity')
+        
+        threshold = float(params.get('similarity_threshold', FULLTEXT_SIMILARITY_SEARCH_THRESHOLD))
         
         try:
             service = LiteratureTitleSearchService

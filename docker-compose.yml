@@ -32,7 +32,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     command: >
-      celery -A labsoa_website_backend worker --queues=django_tasks --prefetch-multiplier=1 --concurrency=1 --loglevel=INFO
+      celery -A labsoa_website_backend worker --queues=django_tasks --prefetch-multiplier=1 --autoscale=1,0 --loglevel=INFO
     deploy:
       resources:
         limits:
@@ -61,7 +61,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     command: >
-      celery -A labsoa_website_backend worker --queues=pdf2chemicals_tasks --prefetch-multiplier=1 --autoscale=3,1 --max-tasks-per-child=1 --loglevel=INFO
+      celery -A labsoa_website_backend worker --queues=pdf2chemicals_tasks --prefetch-multiplier=1 --autoscale=3,0 --max-tasks-per-child=1 --loglevel=INFO
     deploy:
       resources:
         limits:

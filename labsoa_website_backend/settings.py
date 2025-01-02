@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     "django_filters",
     "django_celery_results",
     "django_clamd",
+    "import_export",
+    "import_export_extensions",
     "chemicals.apps.ChemicalsConfig",
     "pdf2chemicals_service.apps.Pdf2ChemicalsServiceConfig",
     "email_service.apps.EmailServiceConfig"

@@ -5,15 +5,15 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.http import FileResponse
-from django.http.response import HttpResponseNotFound
 
 from rest_framework import viewsets, permissions, filters
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .util.export import BaseExportView
-from .util.util import generate_random_sequence
+from import_export_extensions.api import views as import_export_views
+
+from .resources import ChemicalResource
 from .serializers import (
     ChemicalAutocompleteSerializer, 
     ChemicalSerializer, 
@@ -25,7 +25,6 @@ from .models import (
     Conformation                    
 )
 from .pagination import PropListPagination
-
 from .filters import (
     ChemicalAdvancedSearchFilter,
     ChemicalAutocompleteSearchFilter,
@@ -50,6 +49,7 @@ ORDERING_FIELDS_LIST = [
 class DownloadChemicalConformationZipView(RetrieveAPIView):
     lookup_field = 'api_id'
     filter_backends = [filters.OrderingFilter]
+    serializer_class = ChemicalSerializer
     ordering_fields = ['api_id']
     ordering = ['api_id']
     permission_classes = [permissions.AllowAny]
@@ -79,23 +79,10 @@ class DownloadChemicalConformationZipView(RetrieveAPIView):
             content_type='application/zip', 
             as_attachment=True
         )
-
-class ChemicalExportView(BaseExportView, ListAPIView):
-    queryset = Chemical.objects.all()
-    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
-    filterset_class = ChemicalAdvancedSearchFilter
+        
+class ChemicalExportViewSet(import_export_views.ExportJobViewSet):
     permission_classes = [permissions.IsAuthenticated]
-    
-    def list(self, request, export_format, *args, **kwargs):
-        filename = f"compounds_{generate_random_sequence()}.{export_format}"
-        
-        queryset = self.filter_queryset(self.get_queryset())
-        
-        if not queryset.exists():
-            return HttpResponseNotFound({"detail": "No chemicals available for export."})
-
-        self.validate_format(export_format)
-        return self.generate_file_response(queryset, export_format, filename)
+    resource_class = ChemicalResource
     
 class ChemicalPropListView(ListAPIView):
     pagination_class = PropListPagination
