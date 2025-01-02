@@ -9,6 +9,9 @@ from django.conf import settings
 
 from .util.util import generate_random_alphanumeric_sequence
 
+class ResourceUnavailable(Exception):
+    pass
+
 class ClusterNodeManager:
     def __init__(self):
         self.redis_client = redis.Redis(
@@ -29,7 +32,8 @@ class ClusterNodeManager:
                 cmd,
                 capture_output=True,
                 text=True,
-                check=True
+                check=True,
+                shell=True
             )
             
             # Parse a saída do comando para extrair nós com GPU

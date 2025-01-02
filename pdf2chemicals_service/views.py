@@ -33,7 +33,7 @@ class PDFUploadView(APIView):
 
                     temp_files.append(pdf_file_path)
                     
-                    extract_and_save_chemicals_from_pdf.delay(pdf_file_path, email)
+                    extract_and_save_chemicals_from_pdf.delay(email=email, pdf_path=pdf_file_path)
 
                 return Response(
                     {"message": f"{len(uploaded_files)} files enqueued for processing."},
