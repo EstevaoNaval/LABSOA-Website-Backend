@@ -15,6 +15,7 @@ psycopg==3.2.3
 psycopg-binary==3.2.3
 redis[hiredis]==5.2.1
 django-rest-knox==5.0.2
+dj-rest-auth[with_social]
 email-validator==2.2.0
 bcrypt==4.2.0
 pyfsig==1.0.0

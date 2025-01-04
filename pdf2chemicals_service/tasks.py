@@ -60,7 +60,7 @@ def handle_pdf2chemicals_task_error(self, *args, **kwargs):
             'email': email,
             'pdf_path': pdf_path
         },
-        countdown=300  # Waits 5 minutes to retry.
+        countdown=60 * 5  # Waits 5 minutes to retry.
     )
 
 @shared_task(

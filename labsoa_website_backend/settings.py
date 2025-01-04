@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from pathlib import Path
+from datetime import timedelta
 import os
 import sys
 
@@ -10,6 +11,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 API_BASE_URL = os.getenv('API_BASE_URL')
 
 SECRET_KEY = os.getenv('SECRET_KEY')
+
+FRONTEND_HOST = os.getenv("FRONTEND_HOST")
+FRONTEND_EMAIL_CONFIRMATION_ENDPOINT = os.getenv("FRONTEND_EMAIL_CONFIRMATION_ENDPOINT")
 
 DEBUG = True
 
@@ -30,18 +34,27 @@ CACHES = {
     }
 }
 
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
 INSTALLED_APPS = [
     "user.apps.UserConfig",
     "authentication.apps.AuthenticationConfig",
     "django.contrib.admin",
-    "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "corsheaders",
+    # Authentication libs
+    "django.contrib.auth",
+    "django.contrib.sites",
     "rest_framework",
     "knox",
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    "django.contrib.staticfiles",
+    "corsheaders",
     "drf_spectacular",
     "django_filters",
     "django_celery_results",
@@ -52,6 +65,8 @@ INSTALLED_APPS = [
     "pdf2chemicals_service.apps.Pdf2ChemicalsServiceConfig",
     "email_service.apps.EmailServiceConfig"
 ]
+
+
 
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
@@ -70,6 +85,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware"
 ]
 
 ROOT_URLCONF = "labsoa_website_backend.urls"
@@ -109,10 +125,6 @@ DATABASES = {
     }
 }
 
-AUTHENTICATION_BACKENDS = [
-    'authentication.backends.EmailBackend'
-]
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -127,6 +139,12 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+HEADLESS_ONLY = True
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -144,7 +162,23 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'
 }
 
+SITE_ID = 1
+
+ACCOUNT_ADAPTER = "authentication.adapters.CustomAccountAdapter"
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+
+REST_AUTH = {
+    'TOKEN_MODEL': None,
+    'USE_JWT':False
+}
+
 REST_KNOX = {
+    'TOKEN_TTL': timedelta(hours=48),
+    'AUTO_REFRESH': True,
     'AUTH_HEADER_PREFIX': 'Bearer'
 }
 
