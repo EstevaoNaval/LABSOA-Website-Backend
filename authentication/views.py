@@ -6,7 +6,8 @@ from rest_framework import permissions
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.response import Response
 
-from dj_rest_auth.registration.views import VerifyEmailView
+from dj_rest_auth.registration.views import VerifyEmailView, ResendEmailVerificationView
+from allauth.account.utils import send_email_confirmation
 
 from knox.views import LoginView as KnoxLoginView
 
@@ -32,7 +33,10 @@ class LoginView(KnoxLoginView):
         
         if response.status_code == 200:
             user = request.user
+            
             if not user.emailaddress_set.filter(verified=True).exists():
-                return Response({"error": "Email not verified"}, status=400)
+                send_email_confirmation(user=user, request=request)
+                
+                return Response({"error": f"Email not verified yet. Resending confirmation email to {user.email}."}, status=400)
         
         return response
