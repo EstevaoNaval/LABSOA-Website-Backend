@@ -7,9 +7,18 @@ class CustomRegisterSerializer(RegisterSerializer):
     first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=True)
 
+    def get_cleaned_data(self):
+        data = super().get_cleaned_data()
+        data.update({
+            'first_name': self.validated_data.get('first_name', ''),
+            'last_name': self.validated_data.get('last_name', ''),
+        })
+        
+        return data
+
     def custom_signup(self, request, user):
-        user.first_name = self.validated_data.get('first_name', '')
-        user.last_name = self.validated_data.get('last_name', '')
+        user.first_name = self.cleaned_data.get('first_name')
+        user.last_name = self.cleaned_data.get('last_name')
         user.save()
 
 class UserDetailsSerializer(serializers.ModelSerializer):

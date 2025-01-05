@@ -173,7 +173,8 @@ ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 
 REST_AUTH = {
     'TOKEN_MODEL': None,
-    'USE_JWT':False
+    'USE_JWT': False,
+    'REGISTER_SERIALIZER': 'authentication.serializer.CustomRegisterSerializer',
 }
 
 REST_KNOX = {

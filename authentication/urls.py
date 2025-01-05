@@ -19,7 +19,7 @@ urlpatterns = [
     path(
         'register/account-confirm-email/',
         UserConfirmEmailView.as_view(),
-        name='account_email_verification_sent',
+        name='account_email_verification_sent'
     ),
     path('register/', include('dj_rest_auth.registration.urls')),
     

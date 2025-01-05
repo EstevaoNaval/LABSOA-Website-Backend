@@ -22,7 +22,7 @@ services:
     networks:
       - bridge_network
     depends_on:
-      - labsoadb
+      - db
       - rabbitmq
       - redis
 
@@ -83,9 +83,9 @@ services:
         max-size: "10m" # Rotate logs after they reach 10 MB
         max-file: "3" # Keep a maximum of 3 log files
 
-  labsoadb:
+  db:
     build:
-      context: ./labsoadb
+      context: ./db
       dockerfile: Dockerfile
     deploy:
       resources:
@@ -103,7 +103,7 @@ services:
     restart: unless-stopped
 
   redis:
-    image: redis:7.2.4
+    image: redis:7.2.4-alpine
     deploy:
       resources:
         limits:
@@ -123,7 +123,7 @@ services:
 
   # Serviço RabbitMQ (broker de mensagens)
   rabbitmq:
-    image: rabbitmq:4-management
+    image: rabbitmq:4-management-alpine
     deploy:
       resources:
         limits:
@@ -140,7 +140,7 @@ services:
 
   clam_container_01:
     container_name: clam_container_01
-    image: clamav/clamav:1.0.7
+    image: clamav/clamav:stable_base
     deploy:
       resources:
         limits:

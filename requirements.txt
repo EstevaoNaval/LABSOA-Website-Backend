@@ -3,7 +3,7 @@ Django==5.1
 djangorestframework==3.15.2
 drf_spectacular==0.27.2
 python-dotenv==1.0.1
-rdkit==2024.3.3
+rdkit==2024.9.1
 Requests==2.32.3
 celery==5.4.0
 msgpack==1.0.8
