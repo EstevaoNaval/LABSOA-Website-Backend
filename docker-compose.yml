@@ -134,8 +134,8 @@ services:
     environment:
       RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit consumer_timeout 31622400000"
     ports:
-      - "127.0.0.1:33113:5672" # Porta padrão do RabbitMQ
-      - "127.0.0.1:33114:15672" # Porta para a interface de administração do RabbitMQ
+      - "33113:5672" # Porta padrão do RabbitMQ
+      - "15672:15672" # Porta para a interface de administração do RabbitMQ
     restart: unless-stopped
 
   clam_container_01:
