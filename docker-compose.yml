@@ -16,7 +16,7 @@ services:
       - ./django-api-logs:/app/logs
       - media:/app/media
     ports:
-      - "127.0.0.1:33110:8000"
+      - "0.0.0.0:33110:8000"
     env_file:
       - .env
     networks:
