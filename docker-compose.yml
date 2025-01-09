@@ -16,7 +16,7 @@ services:
       - ./django-api-logs:/app/logs
       - media:/app/media
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:8000:33110"
     env_file:
       - .env
     networks:
@@ -99,7 +99,7 @@ services:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_DB: ${DATABASE_NAME}
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:5432:33111"
     restart: unless-stopped
 
   redis:
@@ -116,7 +116,7 @@ services:
     volumes:
       - redis-data:/data
     ports:
-      - "127.0.0.1:6379:6379"
+      - "127.0.0.1:6379:33112"
     environment:
       REDIS_PASSWORD: "${REDIS_PASSWORD}"
     restart: unless-stopped
@@ -134,8 +134,8 @@ services:
     environment:
       RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit consumer_timeout 31622400000"
     ports:
-      - "127.0.0.1:5672:5672" # Porta padrão do RabbitMQ
-      - "127.0.0.1:15672:15672" # Porta para a interface de administração do RabbitMQ
+      - "127.0.0.1:5672:33113" # Porta padrão do RabbitMQ
+      - "127.0.0.1:15672:33114" # Porta para a interface de administração do RabbitMQ
     restart: unless-stopped
 
   clam_container_01:
@@ -149,8 +149,8 @@ services:
     networks:
       - bridge_network
     ports:
-      - "127.0.0.1:3310:3310"
-      - "127.0.0.1:7357:7357"
+      - "127.0.0.1:3310:33115"
+      - "127.0.0.1:7357:33116"
     volumes:
       - clamav-data:/var/lib/clamav
       - clamav-logs:/var/log/clamav
