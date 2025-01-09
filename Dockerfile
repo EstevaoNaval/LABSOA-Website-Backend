@@ -16,8 +16,9 @@ RUN pip install --upgrade pip && \
 # Copiar o código do projeto para o container
 COPY . /app/
 
+RUN chmod +x /app/docker-entrypoint.sh
+
 # Expor a porta do Django
 EXPOSE 8000
 
-# Comando para rodar o servidor Django
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]

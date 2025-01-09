@@ -15,7 +15,7 @@ class UserConfirmEmailView(VerifyEmailView):
     def get(self, *args, **kwargs):
         self.object = self.get_object()
         # Substitua pelo URL do seu front-end
-        redirect_url = f"{settings.FRONTEND_HOST}{settings.FRONTEND_EMAIL_CONFIRMATION_ENDPOINT}"
+        redirect_url = f"{settings.FRONTEND_URL}{settings.FRONTEND_EMAIL_CONFIRMATION_ENDPOINT}"
         return HttpResponseRedirect(redirect_url)
 
 class LoginView(KnoxLoginView):

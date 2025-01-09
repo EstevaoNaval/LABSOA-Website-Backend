@@ -8,5 +8,5 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         Retorna a URL de confirmação de e-mail.
         Substitua 'frontend_url' pela URL da sua aplicação front-end.
         """
-        frontend_url = f"{settings.FRONTEND_HOST}{settings.FRONTEND_EMAIL_CONFIRMATION_ENDPOINT}"
+        frontend_url = f"{settings.FRONTEND_URL}{settings.FRONTEND_EMAIL_CONFIRMATION_ENDPOINT}"
         return f"{frontend_url}?key={emailconfirmation.key}"

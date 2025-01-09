@@ -2,7 +2,6 @@
 import csv
 import logging
 import os
-from pathlib import Path
 from django.core.management.base import BaseCommand
 from django.core.files import File
 from django.db import transaction

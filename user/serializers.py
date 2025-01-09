@@ -1,4 +1,4 @@
-import re
+'''import re
 
 from django.contrib.auth import get_user_model
 from rest_framework import serializers, status
@@ -54,4 +54,4 @@ class UserSerializer(serializers.ModelSerializer):
             user.set_password(password)
             user.save()
         
-        return user
+        return user'''
