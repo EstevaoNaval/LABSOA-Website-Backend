@@ -26,10 +26,10 @@ services:
       - rabbitmq
       - redis
 
-  django_tasks_worker:
+  django_worker:
     build:
       context: . # Usar o Dockerfile do pdf2chemicals
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_Worker
     restart: unless-stopped
     command: >
       celery -A labsoa_website_backend worker --queues=django_tasks --prefetch-multiplier=1 --autoscale=1,0 --loglevel=INFO
@@ -55,10 +55,10 @@ services:
         max-file: "3" # Keep a maximum of 3 log files
 
   # Serviço Celery Worker para PDF (com acesso ao Django e ao pdf_processor)
-  pdf2chemicals_tasks_celery_worker:
+  pdf2chemicals_worker:
     build:
       context: . # Usar o Dockerfile do pdf2chemicals
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_Worker
     restart: unless-stopped
     command: >
       celery -A labsoa_website_backend worker --queues=pdf2chemicals_tasks --prefetch-multiplier=1 --autoscale=3,0 --max-tasks-per-child=1 --loglevel=INFO
