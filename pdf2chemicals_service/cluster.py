@@ -36,8 +36,13 @@ class ClusterNodeManager:
                 shell=True
             )
             
+            print(result.stdout)
+            
             # Parse a saída do comando para extrair nós com GPU
             nodes = self._parse_pbsnodes_output(result.stdout)
+            
+            print(nodes)
+            
             return nodes
         except subprocess.CalledProcessError as e:
             print(f"Erro ao executar pbsnodes: {e}")
@@ -72,13 +77,13 @@ class ClusterNodeManager:
         """Obtém um nó livre com GPU, considerando os nós já em uso por outros workers"""
         available_nodes = self.get_available_nodes()
         
-        print(free_nodes)
-        
         # Filtra nós que já estão em uso por outros workers
         free_nodes = [
             node for node in available_nodes
             if not self.redis_client.exists(f"cluster:node:{node}")
         ]
+        
+        print(free_nodes)
         
         return choice(free_nodes) if free_nodes else ''
 
