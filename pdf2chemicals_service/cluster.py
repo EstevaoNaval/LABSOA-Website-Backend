@@ -72,6 +72,8 @@ class ClusterNodeManager:
         """Obtém um nó livre com GPU, considerando os nós já em uso por outros workers"""
         available_nodes = self.get_available_nodes()
         
+        print(free_nodes)
+        
         # Filtra nós que já estão em uso por outros workers
         free_nodes = [
             node for node in available_nodes
