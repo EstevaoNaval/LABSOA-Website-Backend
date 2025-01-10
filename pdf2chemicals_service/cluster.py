@@ -36,12 +36,8 @@ class ClusterNodeManager:
                 shell=True
             )
             
-            print(result.stdout)
-            
             # Parse a saída do comando para extrair nós com GPU
             nodes = self._parse_pbsnodes_output(result.stdout)
-            
-            print(nodes)
             
             return nodes
         except subprocess.CalledProcessError as e:
@@ -82,8 +78,6 @@ class ClusterNodeManager:
             node for node in available_nodes
             if not self.redis_client.exists(f"cluster:node:{node}")
         ]
-        
-        print(free_nodes)
         
         return choice(free_nodes) if free_nodes else ''
 

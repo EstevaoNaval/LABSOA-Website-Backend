@@ -73,8 +73,16 @@ services:
       - .:/app # Montar o código do Django e o app pdf_processor como volume
       - ./data:/app/data
       - media:/app/media
+      - ${TORQUE_HOME}/bin:${TORQUE_HOME}/bin:ro
+      - ${TORQUE_HOME}/sbin:${TORQUE_HOME}sbin:ro
+      - ${TORQUE_HOME}/lib:${TORQUE_HOME}/lib:ro
+      - /var/spool/torque/server_name:/var/spool/torque/server_name:ro
     environment:
+      - TORQUE_HOME=${TORQUE_HOME}
+      - PBS_SERVER=${PBS_SERVER}
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - PATH=${TORQUE_HOME}/bin:${TORQUE_HOME}/sbin:$PATH
+      - LD_LIBRARY_PATH=${TORQUE_HOME}/lib:$LD_LIBRARY_PATH
     depends_on:
       - rabbitmq
     logging:
