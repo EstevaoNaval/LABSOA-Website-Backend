@@ -75,11 +75,16 @@ services:
       - .:/app # Montar o código do Django e o app pdf_processor como volume
       - ./data:/app/data
       - media:/app/media
+      - /tmp/trqauthd-unix:/tmp/trqauthd-unix
       - ${TORQUE_HOME}/bin:${TORQUE_HOME}/bin:ro
       - ${TORQUE_HOME}/sbin:${TORQUE_HOME}sbin:ro
       - ${TORQUE_HOME}/lib:${TORQUE_HOME}/lib:ro
-      - /var/spool/torque/server_name:/var/spool/torque/server_name:ro
+      - ${TORQUE_ROOT_DIR}/server_name:${TORQUE_ROOT_DIR}/server_name:ro
+      - ${TORQUE_ROOT_DIR}/mom_priv/config:${TORQUE_ROOT_DIR}/mom_priv/config:ro
+      - ${TORQUE_ROOT_DIR}/server_priv/nodes:${TORQUE_ROOT_DIR}/server_priv/nodes:ro
+      - ${TORQUE_ROOT_DIR}:${TORQUE_ROOT_DIR}:rw
     environment:
+      - TORQUE_ROOT_DIR=${TORQUE_ROOT_DIR}
       - TORQUE_HOME=${TORQUE_HOME}
       - PBS_SERVER=${PBS_SERVER}
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
