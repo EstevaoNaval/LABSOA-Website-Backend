@@ -75,7 +75,6 @@ services:
       - .:/app # Montar o código do Django e o app pdf_processor como volume
       - ./data:/app/data
       - media:/app/media
-      - /tmp/trqauthd-unix:/tmp/trqauthd-unix
       - ${TORQUE_HOME}/bin:${TORQUE_HOME}/bin:ro
       - ${TORQUE_HOME}/sbin:${TORQUE_HOME}/sbin:ro
       - ${TORQUE_HOME}/lib:${TORQUE_HOME}/lib:ro
