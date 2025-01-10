@@ -69,6 +69,8 @@ services:
           memory: "4G"
     networks:
       - bridge_network
+    extra_hosts:
+      - ${PBS_SERVER}:${PBS_SERVER_HOST}
     volumes:
       - .:/app # Montar o código do Django e o app pdf_processor como volume
       - ./data:/app/data
