@@ -58,9 +58,10 @@ services:
   pdf2chemicals_worker:
     build:
       context: . # Usar o Dockerfile do pdf2chemicals
-      dockerfile: Dockerfile_Worker
+      dockerfile: Dockerfile_Pdf2Chemicals_Worker
     restart: unless-stopped
     command: >
+      trqauthd && \
       celery -A labsoa_website_backend worker --queues=pdf2chemicals_tasks --prefetch-multiplier=1 --autoscale=3,0 --max-tasks-per-child=1 --loglevel=INFO
     deploy:
       resources:
