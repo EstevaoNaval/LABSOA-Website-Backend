@@ -59,13 +59,15 @@ services:
       context: . # Usar o Dockerfile do pdf2chemicals
       dockerfile: Dockerfile_Worker
     restart: unless-stopped
+    hostname: ${PDF2CHEMICALS_WORKER_HOSTNAME}
     deploy:
       resources:
         limits:
           cpus: "2"
           memory: "4G"
     networks:
-      - bridge_network
+      bridge_network:
+        ipv4_address: ${PDF2CHEMICALS_WORKER_HOSTNAME_IPV4}
     extra_hosts:
       - ${TORQUE_SERVER}:${TORQUE_SERVER_HOST}
     entrypoint: /app/docker-pdf2chemicals-worker-entrypoint.sh
@@ -81,6 +83,7 @@ services:
       - ${TORQUE_ROOT_DIR}/mom_priv/config:${TORQUE_ROOT_DIR}/mom_priv/config:ro
       - ${TORQUE_ROOT_DIR}/server_priv/nodes:${TORQUE_ROOT_DIR}/server_priv/nodes:ro
       - ${TORQUE_ROOT_DIR}:${TORQUE_ROOT_DIR}:rw
+      - /home/${TORQUE_USER}:/home/${TORQUE_USER}
     environment:
       - TORQUE_ROOT_DIR=${TORQUE_ROOT_DIR}
       - TORQUE_HOME=${TORQUE_HOME}
@@ -177,6 +180,9 @@ services:
 networks:
   bridge_network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: ${LABSOA_WEBSITE_SUBNET}
 
 volumes:
   redis-data:
