@@ -36,7 +36,7 @@ services:
         limits:
           cpus: "2"
           memory: "4G"
-    entrypoint: /docker-django-worker-entrypoint.sh
+    entrypoint: /app/docker-django-worker-entrypoint.sh
     volumes:
       - .:/app # Montar o código do Django e o app pdf_processor como volume
       - ./data:/app/data
@@ -68,7 +68,7 @@ services:
       - bridge_network
     extra_hosts:
       - ${PBS_SERVER}:${PBS_SERVER_HOST}
-    entrypoint: /docker-pdf2chemicals-worker-entrypoint.sh
+    entrypoint: /app/docker-pdf2chemicals-worker-entrypoint.sh
     volumes:
       - .:/app # Montar o código do Django e o app pdf_processor como volume
       - ./data:/app/data
