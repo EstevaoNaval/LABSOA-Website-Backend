@@ -73,8 +73,9 @@ services:
       - .:/app # Montar o código do Django e o app pdf_processor como volume
       - ./data:/app/data
       - media:/app/media
-      - ${HOST_USER_LIST}:${HOST_USER_LIST}:ro
-      - ${HOST_GROUP_LIST}:${HOST_GROUP_LIST}:ro
+      - ${HOST_USER_LIST}:${HOST_USER_LIST}:rw
+      - ${HOST_USER_PASSWORD_LIST}:${HOST_USER_PASSWORD_LIST}:rw
+      - ${HOST_GROUP_LIST}:${HOST_GROUP_LIST}:rw
       - ${TORQUE_HOME}:${TORQUE_HOME}:ro
       - ${TORQUE_ROOT_DIR}/server_name:${TORQUE_ROOT_DIR}/server_name:ro
       - ${TORQUE_ROOT_DIR}/mom_priv/config:${TORQUE_ROOT_DIR}/mom_priv/config:ro
