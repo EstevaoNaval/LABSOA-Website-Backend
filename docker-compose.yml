@@ -31,13 +31,12 @@ services:
       context: . # Usar o Dockerfile do pdf2chemicals
       dockerfile: Dockerfile_Worker
     restart: unless-stopped
-    command: >
-      celery -A labsoa_website_backend worker --queues=django_tasks --prefetch-multiplier=1 --autoscale=1,0 --loglevel=INFO
     deploy:
       resources:
         limits:
           cpus: "2"
           memory: "4G"
+    entrypoint: /docker-django-worker-entrypoint.sh
     volumes:
       - .:/app # Montar o código do Django e o app pdf_processor como volume
       - ./data:/app/data
@@ -60,8 +59,6 @@ services:
       context: . # Usar o Dockerfile do pdf2chemicals
       dockerfile: Dockerfile_Worker
     restart: unless-stopped
-    command: >
-      trqauthd && celery -A labsoa_website_backend worker --queues=pdf2chemicals_tasks --prefetch-multiplier=1 --autoscale=3,0 --max-tasks-per-child=1 --loglevel=INFO
     deploy:
       resources:
         limits:
@@ -71,6 +68,7 @@ services:
       - bridge_network
     extra_hosts:
       - ${PBS_SERVER}:${PBS_SERVER_HOST}
+    entrypoint: /docker-pdf2chemicals-worker-entrypoint.sh
     volumes:
       - .:/app # Montar o código do Django e o app pdf_processor como volume
       - ./data:/app/data
