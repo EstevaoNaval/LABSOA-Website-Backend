@@ -17,5 +17,3 @@ RUN pip install --upgrade pip && \
 COPY . /app/
 
 RUN useradd -ms /bin/bash pdf2chemicals
-
-USER pdf2chemicals
