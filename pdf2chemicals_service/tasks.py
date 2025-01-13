@@ -92,7 +92,7 @@ def process_chemical_list(chemical_list, user_id):
 def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
     JSON_FILENAME_LENGTH = 10
     
-    json_dir = os.path(settings.MEDIA_ROOT, 'json')
+    json_dir = os.path.join(settings.MEDIA_ROOT, 'json')
     json_filename = generate_random_alphanumeric_sequence(JSON_FILENAME_LENGTH) + ".json"
     json_path = os.path.join(json_dir, json_filename)
     json_prefix = f"--json --json-filename {json_filename}"
