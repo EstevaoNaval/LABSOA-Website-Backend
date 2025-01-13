@@ -222,7 +222,7 @@ def is_pbs_job_completed(job_id: str) -> bool:
     try:
         # Comando para buscar palavras-chave diretamente com grep
         result = subprocess.run(
-            f"tracejob -q -n 90 {job_id} | grep -qE 'resources_used|Exit_status|array_index'",
+            f"tracejob -q -n 30 {job_id} | grep -qE 'resources_used|Exit_status|array_index'",
             shell=True
         )
 
