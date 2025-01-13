@@ -1,12 +1,11 @@
 from dotenv import load_dotenv
-from pathlib import Path
 from datetime import timedelta
 import os
 import sys
 
 load_dotenv()
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.getenv('BASE_DIR')
 
 API_BASE_URL = os.getenv('API_BASE_URL')
 

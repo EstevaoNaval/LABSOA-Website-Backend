@@ -1,6 +1,6 @@
 FROM postgres:15
 
-WORKDIR /app
+WORKDIR /src
 
 COPY bingo/lib/ lib/
 
@@ -12,6 +12,6 @@ RUN chmod +x bingo-pg-install.sh
 
 RUN ./bingo-pg-install.sh -y
 
-RUN mv /app/bingo_install.sql /docker-entrypoint-initdb.d/
+RUN mv /src/bingo_install.sql /docker-entrypoint-initdb.d/
 
 EXPOSE 5432

@@ -4,17 +4,15 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "1"
           memory: "1G"
     build:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
     volumes:
-      - .:/app
-      - ./data:/app/data
-      - ./django-api-logs:/app/logs
-      - media:/app/media
+      - ./data:/data
+      - ./django-api-logs:/logs
     ports:
       - "8000:8000"
     env_file:
@@ -26,7 +24,7 @@ services:
       - rabbitmq
       - redis
 
-  django_worker:
+  django-worker:
     build:
       context: . # Usar o Dockerfile do pdf2chemicals
       dockerfile: Dockerfile_Worker
@@ -36,11 +34,9 @@ services:
         limits:
           cpus: "2"
           memory: "4G"
-    entrypoint: /app/docker-django-worker-entrypoint.sh
+    entrypoint: /src/docker-django-worker-entrypoint.sh
     volumes:
-      - .:/app # Montar o código do Django e o app pdf_processor como volume
-      - ./data:/app/data
-      - media:/app/media
+      - ./data:/data
     environment:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
     networks:
@@ -54,7 +50,7 @@ services:
         max-file: "3" # Keep a maximum of 3 log files
 
   # Serviço Celery Worker para PDF (com acesso ao Django e ao pdf_processor)
-  pdf2chemicals_worker:
+  pdf2chemicals-worker:
     build:
       context: . # Usar o Dockerfile do pdf2chemicals
       dockerfile: Dockerfile_Worker
@@ -70,11 +66,9 @@ services:
         ipv4_address: ${PDF2CHEMICALS_WORKER_HOSTNAME_IPV4}
     extra_hosts:
       - ${TORQUE_SERVER}:${TORQUE_SERVER_HOST}
-    entrypoint: /app/docker-pdf2chemicals-worker-entrypoint.sh
+    entrypoint: /src/docker-pdf2chemicals-worker-entrypoint.sh
     volumes:
-      - .:/app # Montar o código do Django e o app pdf_processor como volume
-      - ./data:/app/data
-      - media:/app/media
+      - ./data:/data
       - ${HOST_USER_LIST}:${HOST_USER_LIST}:ro
       - ${HOST_USER_PASSWORD_LIST}:${HOST_USER_PASSWORD_LIST}:ro
       - ${HOST_GROUP_LIST}:${HOST_GROUP_LIST}:ro
@@ -156,8 +150,8 @@ services:
       - "15672:15672" # Porta para a interface de administração do RabbitMQ
     restart: unless-stopped
 
-  clam_container_01:
-    container_name: clam_container_01
+  clam-container:
+    container_name: clam-container-01
     image: clamav/clamav:stable_base
     deploy:
       resources:
@@ -175,7 +169,7 @@ services:
     restart: unless-stopped
 
 networks:
-  bridge_network:
+  bridge-network:
     driver: bridge
     ipam:
       config:
