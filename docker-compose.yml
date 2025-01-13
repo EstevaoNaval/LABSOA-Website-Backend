@@ -80,16 +80,19 @@ services:
       - ${HOST_GROUP_LIST}:${HOST_GROUP_LIST}:rw
       - ${TORQUE_HOME}:${TORQUE_HOME}:ro
       - ${TORQUE_ROOT_DIR}/server_name:${TORQUE_ROOT_DIR}/server_name:ro
-      - ${TORQUE_ROOT_DIR}/mom_priv/config:${TORQUE_ROOT_DIR}/mom_priv/config:ro
-      - ${TORQUE_ROOT_DIR}/server_priv/nodes:${TORQUE_ROOT_DIR}/server_priv/nodes:ro
-      - ${TORQUE_ROOT_DIR}:${TORQUE_ROOT_DIR}:rw
-      - /home/${TORQUE_USER}:/home/${TORQUE_USER}
+      #- ${TORQUE_ROOT_DIR}/mom_priv/config:${TORQUE_ROOT_DIR}/mom_priv/config:ro
+      #- ${TORQUE_ROOT_DIR}/server_priv/nodes:${TORQUE_ROOT_DIR}/server_priv/nodes:ro
+      #- ${TORQUE_ROOT_DIR}:${TORQUE_ROOT_DIR}:rw
+      - ${TORQUE_ROOT_DIR}/server_priv/accounting:${TORQUE_ROOT_DIR}/server_priv/accounting:rw
+      - ${TORQUE_ROOT_DIR}/server_logs:${TORQUE_ROOT_DIR}/server_logs:rw
+      - ${TORQUE_ROOT_DIR}/mom_logs:${TORQUE_ROOT_DIR}/mom_logs:rw
+      - ${TORQUE_ROOT_DIR}/sched_logs:${TORQUE_ROOT_DIR}/sched_logs:rw
+
     environment:
       - TORQUE_ROOT_DIR=${TORQUE_ROOT_DIR}
       - TORQUE_HOME=${TORQUE_HOME}
       - TORQUE_SERVER=${TORQUE_SERVER}
       - TORQUE_USER=${TORQUE_USER}
-      - TORQUE_USER_PASS=${TORQUE_USER_PASS}
       - TORQUE_QUEUE_GROUP=${TORQUE_QUEUE_GROUP}
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
       - PATH=${TORQUE_HOME}/bin:${TORQUE_HOME}/sbin:$PATH

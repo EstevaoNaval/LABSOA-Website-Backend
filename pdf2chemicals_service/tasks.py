@@ -113,7 +113,7 @@ def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
         node_name=node_name
     )
     
-    cmd = ['qsub', script_path]
+    cmd = [f'sudo -u {os.getenv('TORQUE_USER')}', os.path.join(os.getenv('TORQUE_HOME'), 'bin', 'qsub'), script_path]
     
     result = subprocess.run(
         cmd,
