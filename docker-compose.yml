@@ -75,14 +75,14 @@ services:
       - .:/app # Montar o código do Django e o app pdf_processor como volume
       - ./data:/app/data
       - media:/app/media
-      - ${HOST_USER_LIST}:${HOST_USER_LIST}:rw
-      - ${HOST_USER_PASSWORD_LIST}:${HOST_USER_PASSWORD_LIST}:rw
-      - ${HOST_GROUP_LIST}:${HOST_GROUP_LIST}:rw
+      - ${HOST_USER_LIST}:${HOST_USER_LIST}:ro
+      - ${HOST_USER_PASSWORD_LIST}:${HOST_USER_PASSWORD_LIST}:ro
+      - ${HOST_GROUP_LIST}:${HOST_GROUP_LIST}:ro
       - ${TORQUE_HOME}:${TORQUE_HOME}:ro
       - ${TORQUE_ROOT_DIR}/server_name:${TORQUE_ROOT_DIR}/server_name:ro
-      - ${TORQUE_ROOT_DIR}/server_priv/accounting:${TORQUE_ROOT_DIR}/server_priv/accounting:rw
-      - ${TORQUE_ROOT_DIR}/server_logs:${TORQUE_ROOT_DIR}/server_logs:rw
-      - ${TORQUE_ROOT_DIR}/mom_logs:${TORQUE_ROOT_DIR}/mom_logs:rw
+      - ${TORQUE_ROOT_DIR}/server_priv/accounting:${TORQUE_ROOT_DIR}/server_priv/accounting:ro
+      - ${TORQUE_ROOT_DIR}/server_logs:${TORQUE_ROOT_DIR}/server_logs:ro
+      - ${TORQUE_ROOT_DIR}/mom_logs:${TORQUE_ROOT_DIR}/mom_logs:ro
 
     environment:
       - TORQUE_HOME=${TORQUE_HOME}
