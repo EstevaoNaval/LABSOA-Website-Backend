@@ -1,11 +1,13 @@
-from dotenv import load_dotenv
-from datetime import timedelta
 import os
 import sys
+from pathlib import Path
+from datetime import timedelta
+
+from dotenv import load_dotenv
 
 load_dotenv()
 
-BASE_DIR = os.getenv('BASE_DIR')
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 API_BASE_URL = os.getenv('API_BASE_URL')
 
@@ -107,10 +109,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "labsoa_website_backend.wsgi.application"
 
-MEDIA_ROOT = BASE_DIR / os.getenv('MEDIA_RELATIVE_PATH')
+DATA_DIR = os.getenv('DATA_ROOT_DIR')
+
+MEDIA_ROOT = DATA_DIR / os.getenv('MEDIA_RELATIVE_PATH')
 MEDIA_URL = os.getenv('MEDIA_URL')
 
-STATIC_ROOT = BASE_DIR / os.getenv('STATIC_RELATIVE_PATH')
+STATIC_ROOT = DATA_DIR / os.getenv('STATIC_RELATIVE_PATH')
 STATIC_URL = os.getenv('STATIC_URL')
 
 DATABASES = {
