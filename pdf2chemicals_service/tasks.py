@@ -92,7 +92,7 @@ def process_chemical_list(chemical_list, user_id):
 def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
     JSON_FILENAME_LENGTH = 10
     
-    json_dir = settings.MEDIA_ROOT / 'json'
+    json_dir = os.path(settings.MEDIA_ROOT, 'json')
     json_filename = generate_random_alphanumeric_sequence(JSON_FILENAME_LENGTH) + ".json"
     json_path = os.path.join(json_dir, json_filename)
     json_prefix = f"--json --json-filename {json_filename}"
@@ -106,12 +106,16 @@ def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
     if node_name == '':
         raise ResourceUnavailable("No pbs node is available at the moment.")
     
+    print(json_dir)
+    
     script_path = generate_pbs_script(
         pdf_path=absolute_pdf_path,
         output_dir=json_dir,
         json_prefix=json_prefix,
         node_name=node_name
     )
+    
+    print(script_path)
     
     cmd = [f'sudo -u {os.getenv('TORQUE_USER')}', os.path.join(os.getenv('TORQUE_HOME'), 'bin', 'qsub'), script_path]
     
@@ -126,6 +130,8 @@ def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
         raise subprocess.CalledProcessError('Job was not received in the HPC cluster.')
     
     job_id = result.stdout.strip()
+    
+    print(job_id)
     
     cluster_node_manager.mark_node_as_busy(node_name, job_id)
     
