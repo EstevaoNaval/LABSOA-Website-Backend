@@ -80,7 +80,9 @@ services:
       - ${HOST_GROUP_LIST}:${HOST_GROUP_LIST}:rw
       - ${TORQUE_HOME}:${TORQUE_HOME}:ro
       - ${TORQUE_ROOT_DIR}/server_name:${TORQUE_ROOT_DIR}/server_name:ro
-      - ${TORQUE_ROOT_DIR}:${TORQUE_ROOT_DIR}
+      - ${TORQUE_ROOT_DIR}/server_priv/accounting:${TORQUE_ROOT_DIR}/server_priv/accounting:rw
+      - ${TORQUE_ROOT_DIR}/server_logs:${TORQUE_ROOT_DIR}/server_logs:rw
+      - ${TORQUE_ROOT_DIR}/mom_logs:${TORQUE_ROOT_DIR}/mom_logs:rw
 
     environment:
       - TORQUE_HOME=${TORQUE_HOME}
