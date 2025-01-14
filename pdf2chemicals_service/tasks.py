@@ -119,7 +119,7 @@ def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
     
     print(script_path)
     
-    cmd = f'su {os.getenv('TORQUE_USER')} -c "qsub {script_path}"'
+    cmd = f'su - {os.getenv("TORQUE_USER")} -c "{os.getenv("TORQUE_HOME")}/bin/qsub {script_path}"'
     
     print(cmd)
     
