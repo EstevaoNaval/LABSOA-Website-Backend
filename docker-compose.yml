@@ -53,7 +53,10 @@ services:
   pdf2chemicals-worker:
     build:
       context: . # Usar o Dockerfile do pdf2chemicals
-      dockerfile: Dockerfile_Worker
+      dockerfile: Dockerfile_Pdf2chemicals_Worker
+      args:
+        TORQUE_USER: ${TORQUE_USER}
+        TORQUE_HOME: ${TORQUE_HOME}
     restart: unless-stopped
     hostname: ${PDF2CHEMICALS_WORKER_HOSTNAME}
     deploy:
@@ -67,6 +70,7 @@ services:
     extra_hosts:
       - ${TORQUE_SERVER}:${TORQUE_SERVER_HOST}
     entrypoint: /src/docker-pdf2chemicals-worker-entrypoint.sh
+    user: "${TORQUE_USER_UID}:${TORQUE_USER_GID}"
     volumes:
       - ${DATA_ROOT_DIR}:${DATA_ROOT_DIR}
       - ${HOST_USER_LIST}:${HOST_USER_LIST}:ro
@@ -82,7 +86,6 @@ services:
     environment:
       - TORQUE_HOME=${TORQUE_HOME}
       - TORQUE_SERVER=${TORQUE_SERVER}
-      - TORQUE_USER=${TORQUE_USER}
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
       - PATH=${TORQUE_HOME}/bin:${TORQUE_HOME}/sbin:$PATH
       - LD_LIBRARY_PATH=${TORQUE_HOME}/lib:$LD_LIBRARY_PATH
