@@ -183,7 +183,7 @@ REST_AUTH = {
 }
 
 REST_KNOX = {
-    'TOKEN_TTL': timedelta(hours=48),
+    'TOKEN_TTL': timedelta(days=2),
     'AUTO_REFRESH': True,
     'AUTH_HEADER_PREFIX': 'Bearer'
 }
@@ -246,7 +246,7 @@ LOGGING = {
 }
 
 CLAMD_USE_TCP = True
-CLAMD_TCP_ADDR = 'clam_container_01'
+CLAMD_TCP_ADDR = 'clam-container-01'
 CLAMD_TCP_SOCKET = 3310
 CLAMD_ENABLED = True
 
