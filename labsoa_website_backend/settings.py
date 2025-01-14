@@ -111,10 +111,10 @@ WSGI_APPLICATION = "labsoa_website_backend.wsgi.application"
 
 DATA_DIR = os.getenv('DATA_ROOT_DIR')
 
-MEDIA_ROOT = DATA_DIR / os.getenv('MEDIA_RELATIVE_PATH')
+MEDIA_ROOT = os.path.join(DATA_DIR, os.getenv('MEDIA_RELATIVE_PATH'))
 MEDIA_URL = os.getenv('MEDIA_URL')
 
-STATIC_ROOT = DATA_DIR / os.getenv('STATIC_RELATIVE_PATH')
+STATIC_ROOT = os.path.join(DATA_DIR, os.getenv('STATIC_RELATIVE_PATH'))
 STATIC_URL = os.getenv('STATIC_URL')
 
 DATABASES = {
