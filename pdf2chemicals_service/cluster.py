@@ -113,12 +113,12 @@ def load_and_replace_template(job_id, node_name, template_path, java_home, conda
     """
     # Load the template content
     with open(template_path, 'r') as file:
-        template_content = file.read()
+        script_content = file.read()
 
     # Replace the variables in the template
-    script_content = template_content.replace("{{job_id}}", job_id)
-    script_content = template_content.replace("{{node_name}}", node_name)
-    script_content = template_content.replace("{{JAVA_HOME}}", java_home)
+    script_content = script_content.replace("{{job_id}}", job_id)
+    script_content = script_content.replace("{{node_name}}", node_name)
+    script_content = script_content.replace("{{JAVA_HOME}}", java_home)
     script_content = script_content.replace("{{conda_env}}", conda_env)
     script_content = script_content.replace("{{pdf2chemicals_path}}", pdf2chemicals_path)
     script_content = script_content.replace("{{pdf_path}}", pdf_path)
@@ -168,7 +168,7 @@ def get_pdf2chemicals_pbs_template_path():
     return os.path.join(os.path.dirname(__file__), 'pbs_template', 'pdf2chemicals_pbs_template.pbs')
 
 def get_pdf2chemicals_path():
-    return os.path.join(settings.BASE_DIR, 'libs', 'pdf2chemicals', 'pdf2chemicals.py')
+    return os.path.join(settings.BASE_ROOT_DIR, 'libs', 'pdf2chemicals', 'pdf2chemicals.py')
                     
 def generate_pbs_script(pdf_path, output_dir, json_prefix, node_name):
     """

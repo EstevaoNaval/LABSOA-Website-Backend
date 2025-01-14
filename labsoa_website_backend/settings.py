@@ -9,7 +9,9 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-API_BASE_URL = os.getenv('API_BASE_URL')
+BASE_ROOT_DIR = os.getenv("BASE_ROOT_DIR")
+
+API_BASE_URL = os.getenv("API_BASE_URL")
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 

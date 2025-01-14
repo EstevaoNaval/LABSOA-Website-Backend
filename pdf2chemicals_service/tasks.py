@@ -108,6 +108,8 @@ def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
     
     print(json_dir)
     
+    print(node_name)
+    
     script_path = generate_pbs_script(
         pdf_path=absolute_pdf_path,
         output_dir=json_dir,
