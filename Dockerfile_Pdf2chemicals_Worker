@@ -18,7 +18,7 @@ RUN pip install --upgrade pip && \
 ARG TORQUE_USER
 ARG TORQUE_HOME
 
-RUN echo "${TORQUE_USER} ALL=(ALL) NOPASSWD: {TORQUE_HOME}/sbin/trqauthd" >> /etc/sudoers
+RUN echo "${TORQUE_USER} ALL=(ALL) NOPASSWD: ${TORQUE_HOME}/sbin/trqauthd" >> /etc/sudoers
 
 # Copiar o código do projeto para o container
 COPY . /src/
