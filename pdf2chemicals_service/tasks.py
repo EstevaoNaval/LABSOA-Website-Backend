@@ -6,7 +6,7 @@ from celery import chain, group
 
 from django.conf import settings
 
-from util.celery import ChainedTask
+from pdf2chemicals_service.util.celery import ChainedTask
 from user.models import User
 from pdf2chemicals_service.util.util import generate_random_alphanumeric_sequence
 from chemicals.tasks import post_chemical
