@@ -6,6 +6,7 @@ from celery import chain, group
 
 from django.conf import settings
 
+from util.celery import ChainedTask
 from user.models import User
 from pdf2chemicals_service.util.util import generate_random_alphanumeric_sequence
 from chemicals.tasks import post_chemical
@@ -18,6 +19,7 @@ from .cluster import (
 )
 
 @shared_task(
+    base=ChainedTask,
     name='pdf2chemicals_service.tasks.pdf2chemicals_tasks_extract_and_save_chemicals_from_pdf', 
     bind=True,  
     acks_late=True,
@@ -44,6 +46,7 @@ def extract_and_save_chemicals_from_pdf(self, *args, **kwargs):
     ))
 
 @shared_task(
+    base=ChainedTask,
     name='pdf2chemicals_service.tasks.handle_pdf2chemicals_task_error',
     bind=True,
     acks_late=True,
@@ -79,6 +82,7 @@ def process_chemical_list(chemical_list, user_id):
     return group(post_chemical.s(chemical, user_id) for chemical in chemical_list)
 
 @shared_task(
+    base=ChainedTask,
     name='pdf2chemicals_service.tasks.pdf2chemicals_tasks_send_pdf2chemicals_hpc_task', 
     bind=True,  
     acks_late=True,
@@ -106,10 +110,6 @@ def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
     if node_name == '':
         raise ResourceUnavailable("No pbs node is available at the moment.")
     
-    print(json_dir)
-    
-    print(node_name)
-    
     script_path = generate_pbs_script(
         pdf_path=absolute_pdf_path,
         output_dir=json_dir,
@@ -117,11 +117,7 @@ def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
         node_name=node_name
     )
     
-    print(script_path)
-    
     cmd = f'su - {os.getenv("TORQUE_USER")} -c "{os.getenv("TORQUE_HOME")}/bin/qsub {script_path}"'
-    
-    print(cmd)
     
     result = subprocess.run(
         cmd,
@@ -136,18 +132,16 @@ def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
     
     job_id = result.stdout.strip()
     
-    print(job_id)
-    
     cluster_node_manager.mark_node_as_busy(node_name, job_id)
     
     return {
-        #'send_pdf2chemicals_hpc_task_kwargs': kwargs,
         'job_id': job_id, 
         'node_name': node_name, 
         'json_path': json_path
     } 
     
 @shared_task(
+    base=ChainedTask,
     name='pdf2chemicals_service.tasks.pdf2chemicals_tasks_monitor_pdf2chemicals_job', 
     bind=True,  
     acks_late=True,
@@ -162,6 +156,8 @@ def monitor_pdf2chemicals_job(self, *args, **kwargs):
     """
     Task to monitor the directory and detect the JSON file.
     """
+    print(kwargs)
+    
     if not is_pbs_job_completed(kwargs['job_id']):
         self.retry()
     
@@ -177,6 +173,7 @@ def monitor_pdf2chemicals_job(self, *args, **kwargs):
     raise FileExistsError("Json file not found. HPC cluster job executed unsuccessfully.")
     
 @shared_task(
+    base=ChainedTask,
     name='chemicals.tasks.pdf2chemicals_tasks_load_chemical_from_json', 
     bind=True, 
     queue='pdf2chemicals_tasks',
