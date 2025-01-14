@@ -18,7 +18,7 @@ services:
     env_file:
       - .env
     networks:
-      - bridge_network
+      - bridge-network
     depends_on:
       - db
       - rabbitmq
@@ -40,7 +40,7 @@ services:
     environment:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
     networks:
-      - bridge_network
+      - bridge-network
     depends_on:
       - rabbitmq
     logging:
@@ -62,7 +62,7 @@ services:
           cpus: "2"
           memory: "4G"
     networks:
-      bridge_network:
+      bridge-network:
         ipv4_address: ${PDF2CHEMICALS_WORKER_HOSTNAME_IPV4}
     extra_hosts:
       - ${TORQUE_SERVER}:${TORQUE_SERVER_HOST}
@@ -103,7 +103,7 @@ services:
           cpus: "1"
           memory: "2G"
     networks:
-      - bridge_network
+      - bridge-network
     environment:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_USER: ${DATABASE_USER}
@@ -122,7 +122,7 @@ services:
           cpus: "1"
           memory: "2G"
     networks:
-      - bridge_network
+      - bridge-network
     command: >
       redis-server --appendonly yes --requirepass "$REDIS_PASSWORD"
     volumes:
@@ -142,7 +142,7 @@ services:
           cpus: "1"
           memory: "1G"
     networks:
-      - bridge_network
+      - bridge-network
     environment:
       RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit consumer_timeout 31622400000"
     ports:
@@ -159,7 +159,7 @@ services:
           cpus: "0.5"
           memory: "3G"
     networks:
-      - bridge_network
+      - bridge-network
     ports:
       - "3310:3310"
       - "7357:7357"
