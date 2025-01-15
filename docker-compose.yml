@@ -110,6 +110,8 @@ services:
       POSTGRES_DB: ${DATABASE_NAME}
     command: >
       postgres -c port=5477
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5477:5477"
     restart: unless-stopped
@@ -181,3 +183,4 @@ volumes:
   clamav-data:
   clamav-logs:
   django-api-logs:
+  postgres_data:
