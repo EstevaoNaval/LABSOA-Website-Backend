@@ -80,7 +80,7 @@ def handle_pdf2chemicals_task_error(self, *args, **kwargs):
     task_reject_on_worker_lost=True
 )
 def process_chemical_list(self, chemical_list, user_id):
-    post_chemical_group = group(post_chemical.s(chemical, user_id) for chemical in chemical_list)
+    post_chemical_group = group(post_chemical.s(chemical=chemical, user_id=user_id) for chemical in chemical_list)
     post_chemical_group()
 
 @shared_task(
