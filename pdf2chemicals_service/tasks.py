@@ -10,6 +10,7 @@ from pdf2chemicals_service.util.celery import ChainedTask
 from user.models import User
 from pdf2chemicals_service.util.util import generate_random_alphanumeric_sequence
 from chemicals.tasks import post_chemical
+
 from .util.util import file_exists
 from .cluster import (
     ResourceUnavailable,
@@ -78,7 +79,9 @@ def handle_pdf2chemicals_task_error(self, *args, **kwargs):
     retry_backoff=True,
     task_reject_on_worker_lost=True
 )
-def process_chemical_list(chemical_list, user_id):
+def process_chemical_list(self, chemical_list, user_id):
+    print(chemical_list)
+    print(user_id)
     return group(post_chemical.s(chemical, user_id) for chemical in chemical_list)
 
 @shared_task(
@@ -148,7 +151,7 @@ def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
     queue='pdf2chemicals_tasks',
     priority=1,
     max_retries=None,
-    default_retry_delay=60 * 2, # Waits 2 minutes to execute 
+    default_retry_delay=60 * 5, # Waits 5 minutes to execute 
     retry_backoff=True,
     task_reject_on_worker_lost=True
 )
@@ -187,5 +190,7 @@ def monitor_pdf2chemicals_job(self, *args, **kwargs):
 def load_chemical_from_json(self, *args, **kwargs):
     with open(kwargs['json_path'], mode='r') as json_file:
         chemical_list = json.load(json_file)
-        
+    
+    print("OK! Deu tudo certo no load!")
+    
     return chemical_list
