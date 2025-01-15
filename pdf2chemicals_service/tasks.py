@@ -37,7 +37,7 @@ def extract_and_save_chemicals_from_pdf(self, *args, **kwargs):
         send_pdf2chemicals_hpc_task.s(pdf_path=kwargs['pdf_path']),
         monitor_pdf2chemicals_job.s(),
         load_chemical_from_json.s(),
-        process_chemical_list.s(user.id)
+        process_chemical_list.s(user.id).apply_async()
     )
     
     # Aplicando o workflow com link_error
@@ -80,9 +80,8 @@ def handle_pdf2chemicals_task_error(self, *args, **kwargs):
     task_reject_on_worker_lost=True
 )
 def process_chemical_list(self, chemical_list, user_id):
-    print(chemical_list)
-    print(user_id)
-    return group(post_chemical.s(chemical, user_id) for chemical in chemical_list)
+    post_chemical_group = group(post_chemical.s(chemical, user_id) for chemical in chemical_list)
+    return post_chemical_group
 
 @shared_task(
     base=ChainedTask,
