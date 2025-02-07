@@ -11,7 +11,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     volumes:
-      - ${DATA_ROOT_DIR}:${DATA_ROOT_DIR}
+      - ${DATA_ROOT_DIR}:${DATA_ROOT_DIR}:rw
       - ./django-api-logs:/logs
     ports:
       - "8000:8000"
@@ -36,7 +36,7 @@ services:
           memory: "4G"
     entrypoint: /src/docker-django-worker-entrypoint.sh
     volumes:
-      - ${DATA_ROOT_DIR}:${DATA_ROOT_DIR}
+      - ${DATA_ROOT_DIR}:${DATA_ROOT_DIR}:rw
     environment:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
     networks:
@@ -68,7 +68,7 @@ services:
       - ${TORQUE_SERVER}:${TORQUE_SERVER_HOST}
     entrypoint: /src/docker-pdf2chemicals-worker-entrypoint.sh
     volumes:
-      - ${DATA_ROOT_DIR}:${DATA_ROOT_DIR}
+      - ${DATA_ROOT_DIR}:${DATA_ROOT_DIR}:rw
       - ${HOST_USER_LIST}:${HOST_USER_LIST}:ro
       - ${HOST_USER_PASSWORD_LIST}:${HOST_USER_PASSWORD_LIST}:ro
       - ${HOST_GROUP_LIST}:${HOST_GROUP_LIST}:ro
