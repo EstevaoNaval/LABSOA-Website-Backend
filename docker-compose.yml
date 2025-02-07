@@ -37,6 +37,8 @@ services:
     entrypoint: /src/docker-django-worker-entrypoint.sh
     volumes:
       - ${DATA_ROOT_DIR}:${DATA_ROOT_DIR}:rw
+    env_file:
+      - .env
     environment:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
     networks:
@@ -78,7 +80,8 @@ services:
       - ${TORQUE_ROOT_DIR}/server_priv/accounting:${TORQUE_ROOT_DIR}/server_priv/accounting:ro
       - ${TORQUE_ROOT_DIR}/server_logs:${TORQUE_ROOT_DIR}/server_logs:ro
       - ${TORQUE_ROOT_DIR}/mom_logs:${TORQUE_ROOT_DIR}/mom_logs:ro
-
+    env_file:
+      - .env
     environment:
       - TORQUE_HOME=${TORQUE_HOME}
       - TORQUE_SERVER=${TORQUE_SERVER}
