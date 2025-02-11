@@ -1,8 +1,10 @@
 services:
   init_permissions:
-    image: alpine:latest
+    image: alpine:3
     command: >
       /bin/sh -c chmod +x /scripts/set-permissions.sh && /scripts/set-permissions.sh
+    networks:
+      - bridge-network
     volumes:
       - ${DATA_ROOT_DIR}:${DATA_ROOT_DIR}
       - ./scripts/set-permissions.sh:/scripts/set-permissions.sh:ro
