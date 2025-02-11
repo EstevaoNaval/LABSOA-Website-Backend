@@ -1,4 +1,16 @@
 services:
+  init_permissions:
+    image: alpine:latest
+    command: >
+      /bin/sh -c chmod +x /scripts/set-permissions.sh && /scripts/set-permissions.sh
+    volumes:
+      - ${DATA_ROOT_DIR}:${DATA_ROOT_DIR}
+      - ./scripts/set-permissions.sh:/scripts/set-permissions.sh:ro
+    env_file:
+      - .env
+    user: root
+    restart: "no"
+
   # Serviço do Django (web)
   django-api:
     deploy:
@@ -6,6 +18,7 @@ services:
         limits:
           cpus: "1"
           memory: "0.6G"
+    user: ${DJANGO_API_UID}:${}
     build:
       context: .
       dockerfile: Dockerfile
@@ -23,6 +36,7 @@ services:
       - db
       - rabbitmq
       - redis
+      - init_permissions
 
   django-worker:
     build:
@@ -34,7 +48,7 @@ services:
         limits:
           cpus: "2"
           memory: "4G"
-    entrypoint: /src/docker-django-worker-entrypoint.sh
+    entrypoint: /src/scripts/docker-django-worker-entrypoint.sh
     volumes:
       - ${DATA_ROOT_DIR}:${DATA_ROOT_DIR}:rw
     env_file:
@@ -45,6 +59,7 @@ services:
       - bridge-network
     depends_on:
       - rabbitmq
+      - init_permissions
     logging:
       driver: "json-file" # Default logging driver
       options:
@@ -68,7 +83,7 @@ services:
         ipv4_address: ${PDF2CHEMICALS_WORKER_HOSTNAME_IPV4}
     extra_hosts:
       - ${TORQUE_SERVER}:${TORQUE_SERVER_HOST}
-    entrypoint: /src/docker-pdf2chemicals-worker-entrypoint.sh
+    entrypoint: /src/scripts/docker-pdf2chemicals-worker-entrypoint.sh
     volumes:
       - ${DATA_ROOT_DIR}:${DATA_ROOT_DIR}:rw
       - ${HOST_USER_LIST}:${HOST_USER_LIST}:ro
@@ -90,6 +105,7 @@ services:
       - LD_LIBRARY_PATH=${TORQUE_HOME}/lib:$LD_LIBRARY_PATH
     depends_on:
       - rabbitmq
+      - init_permissions
     logging:
       driver: "json-file" # Default logging driver
       options:

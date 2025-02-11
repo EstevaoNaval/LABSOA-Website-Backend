@@ -20,9 +20,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 FROM python:3.12-slim
 
 # Criar usuário não root
-RUN useradd -m -r djangouser && \
-   mkdir /src && \
-   chown -R djangouser /src
+RUN mkdir /src && \
+   chown -R ${DJANGO_API_USER} /src
 
 # Definir o diretório de trabalho
 WORKDIR /src
@@ -32,20 +31,17 @@ COPY --from=builder /usr/local/lib/python3.12/site-packages/ /usr/local/lib/pyth
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
 # Copiar código da aplicação
-COPY --chown=djangouser:djangouser . .
+COPY --chown=${DJANGO_API_USER}:${DJANGO_API_USER} . .
 
 # Set environment variables to optimize Python
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1 
 
-# Mudar para usuário não root
-USER djangouser
-
 # Expor porta do Django
 EXPOSE 8000 
 
 # Permissão para script de entrada
-RUN chmod +x /src/docker-entrypoint.sh
+RUN chmod +x /src/scripts/docker-django-api-entrypoint.sh
 
 # Definir o script de entrada
-ENTRYPOINT ["/src/docker-entrypoint.sh"]
+ENTRYPOINT ["/src/scripts/docker-django-api-entrypoint.sh"]

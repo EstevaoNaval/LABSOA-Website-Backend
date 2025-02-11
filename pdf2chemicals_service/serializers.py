@@ -36,7 +36,7 @@ class PDFSerializer(serializers.Serializer):
         return matches
     
     def validate_pdf_files(self, value):
-        FILE_MAX_SIZE = 50 * 1024 * 1024
+        FILE_MAX_SIZE = 50 * 1024 * 1024 # 50 MB
         
         for file in value:
             if not file.name.endswith(".pdf") or not self._has_pdf_file_extension_signature(file):
