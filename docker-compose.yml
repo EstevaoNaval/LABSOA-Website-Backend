@@ -28,6 +28,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - USER=${DJANGO_API_USER}
+        - UID=${DJANGO_API_USER}
+        - GID=${DJANGO_API_GID}
     restart: unless-stopped
     volumes:
       - ${DATA_ROOT_DIR}:${DATA_ROOT_DIR}:rw
@@ -42,7 +46,7 @@ services:
       - db
       - rabbitmq
       - redis
-      - init_permissions
+      - set-permissions
 
   django-worker:
     build:
@@ -66,7 +70,7 @@ services:
       - bridge-network
     depends_on:
       - rabbitmq
-      - init_permissions
+      - set-permissions
     logging:
       driver: "json-file" # Default logging driver
       options:
@@ -113,7 +117,7 @@ services:
       - LD_LIBRARY_PATH=${TORQUE_HOME}/lib:$LD_LIBRARY_PATH
     depends_on:
       - rabbitmq
-      - init_permissions
+      - set-permissions
     logging:
       driver: "json-file" # Default logging driver
       options:

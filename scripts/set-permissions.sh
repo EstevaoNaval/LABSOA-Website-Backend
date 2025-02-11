@@ -12,7 +12,7 @@ fi
 # Create the main "appdata" group if it does not exist
 if ! getent group "$GROUP_NAME" >/dev/null; then
     echo "Creating group $GROUP_NAME with GID $DATA_GID..."
-    addgroup -g "$DATA_GID" "$GROUP_NAME"
+    addgroup --gid "$DATA_GID" "$GROUP_NAME"
 fi
 
 # Create users with their own groups and add them to the shared group
@@ -23,7 +23,7 @@ for USER_INFO in $USERS; do
     # Create a group with the same GID as the user's UID (if it doesn’t exist)
     if ! getent group "$USER" >/dev/null; then
         echo "Creating group $USER with GID $USER_UID..."
-        addgroup -g "$USER_UID" "$USER"
+        addgroup --gid "$USER_UID" "$USER"
     fi
 
     # Create the user with the same UID and primary group
