@@ -24,6 +24,7 @@ services:
         limits:
           cpus: "1"
           memory: "0.6G"
+    entrypoint: /src/scripts/docker-django-api-entrypoint.sh
     user: ${DJANGO_API_UID}:${DJANGO_API_GID}
     build:
       context: .
@@ -51,7 +52,11 @@ services:
   django-worker:
     build:
       context: . # Usar o Dockerfile do pdf2chemicals
-      dockerfile: Dockerfile_Worker
+      dockerfile: Dockerfile
+      args:
+        - USER=${DJANGO_WORKER_USER}
+        - UID=${DJANGO_WORKER_UID}
+        - GID=${DJANGO_WORKER_GID}
     restart: unless-stopped
     user: ${DJANGO_WORKER_UID}:${DJANGO_WORKER_GID}
     deploy:
@@ -81,7 +86,11 @@ services:
   pdf2chemicals-worker:
     build:
       context: . # Usar o Dockerfile do pdf2chemicals
-      dockerfile: Dockerfile_Worker
+      dockerfile: Dockerfile
+      args:
+        - USER=${PDF2CHEMICALS_WORKER_USER}
+        - UID=${PDF2CHEMICALS_WORKER_UID}
+        - GID=${PDF2CHEMICALS_WORKER_GID}
     restart: unless-stopped
     user: ${PDF2CHEMICALS_WORKER_UID}:${PDF2CHEMICALS_WORKER_GID}
     hostname: ${PDF2CHEMICALS_WORKER_HOSTNAME}

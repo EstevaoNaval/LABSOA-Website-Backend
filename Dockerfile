@@ -45,12 +45,3 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1 
 
 USER ${USER}
-
-# Expor porta do Django
-EXPOSE 8000 
-
-# Permissão para script de entrada
-RUN chmod +x /src/scripts/docker-django-api-entrypoint.sh
-
-# Definir o script de entrada
-ENTRYPOINT ["/src/scripts/docker-django-api-entrypoint.sh"]
