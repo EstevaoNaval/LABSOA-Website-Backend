@@ -43,6 +43,8 @@ chown -R :"$GROUP_NAME" "$DATA_DIR"
 
 # Set permissions to 2775 (setgid activated for group inheritance)
 chmod -R 2775 "$DATA_DIR"
+
+# Ensure new files inherit group ownership
 find "$DATA_DIR" -type d -exec chmod g+s {} \;
 
 # Configure default ACL to ensure permission inheritance
