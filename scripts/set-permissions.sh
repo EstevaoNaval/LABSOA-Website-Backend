@@ -1,4 +1,10 @@
 #!/bin/sh
+
+# Load environment variables
+set -o allexport
+source ../.env
+set +o allexport
+
 # Define the shared group name
 GROUP_NAME=${DATA_GROUP:-appdata}
 DATA_DIR=${DATA_ROOT_DIR}
