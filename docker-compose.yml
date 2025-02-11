@@ -30,7 +30,7 @@ services:
       dockerfile: Dockerfile
       args:
         - USER=${DJANGO_API_USER}
-        - UID=${DJANGO_API_USER}
+        - UID=${DJANGO_API_UID}
         - GID=${DJANGO_API_GID}
     restart: unless-stopped
     volumes:
