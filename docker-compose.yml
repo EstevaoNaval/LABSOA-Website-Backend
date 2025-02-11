@@ -18,7 +18,7 @@ services:
         limits:
           cpus: "1"
           memory: "0.6G"
-    user: ${DJANGO_API_UID}:${}
+    user: ${DJANGO_API_UID}:${DJANGO_API_GID}
     build:
       context: .
       dockerfile: Dockerfile
@@ -43,6 +43,7 @@ services:
       context: . # Usar o Dockerfile do pdf2chemicals
       dockerfile: Dockerfile_Worker
     restart: unless-stopped
+    user: ${DJANGO_WORKER_UID}:${DJANGO_WORKER_GID}
     deploy:
       resources:
         limits:
@@ -72,6 +73,7 @@ services:
       context: . # Usar o Dockerfile do pdf2chemicals
       dockerfile: Dockerfile_Worker
     restart: unless-stopped
+    user: ${PDF2CHEMICALS_WORKER_UID}:${PDF2CHEMICALS_WORKER_GID}
     hostname: ${PDF2CHEMICALS_WORKER_HOSTNAME}
     deploy:
       resources:

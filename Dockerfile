@@ -20,8 +20,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 FROM python:3.12-slim
 
 # Criar usuário não root
-RUN mkdir /src && \
-   chown -R ${DJANGO_API_USER} /src
+RUN mkdir /src
+# RUN chown -R ${DJANGO_API_USER} /src
 
 # Definir o diretório de trabalho
 WORKDIR /src
@@ -31,7 +31,8 @@ COPY --from=builder /usr/local/lib/python3.12/site-packages/ /usr/local/lib/pyth
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
 # Copiar código da aplicação
-COPY --chown=${DJANGO_API_USER}:${DJANGO_API_USER} . .
+# COPY --chown=${DJANGO_API_USER}:${DJANGO_API_USER} . .
+COPY . .
 
 # Set environment variables to optimize Python
 ENV PYTHONDONTWRITEBYTECODE=1
