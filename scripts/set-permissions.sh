@@ -29,7 +29,7 @@ for USER_INFO in $USERS; do
     # Create the user with the same UID and primary group
     if ! id "$USER" >/dev/null 2>&1; then
         echo "Creating user $USER with UID $USER_UID and primary group $USER..."
-        adduser -D --uid "$USER_UID" --gid "$USER_UID" "$USER"
+        adduser --disabled-password --no-create-home --uid "$USER_UID" --gid "$USER_UID" "$USER"
     fi
 
     # Ensure the user is added to the shared "appdata" group

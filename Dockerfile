@@ -25,7 +25,7 @@ ARG GID
 
 # Criar usuário não root
 RUN addgroup --gid ${GID} ${USER} && \
-adduser -D --uid ${UID} --gid ${GID} -s /bin/sh ${USER} && \ 
+adduser --disabled-password --no-create-home --uid ${UID} --gid ${GID} --shell /bin/sh ${USER} && \ 
 mkdir /src && \
 chown -R ${USER} /src
 
