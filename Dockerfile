@@ -51,4 +51,4 @@ USER ${USER}
 RUN chmod +x ${ENTRYPOINT_PATH}
 
 # Definir o script de entrada
-ENTRYPOINT [${ENTRYPOINT_PATH}]
+ENTRYPOINT ["/bin/sh", "-c", "$ENTRYPOINT_PATH"]
