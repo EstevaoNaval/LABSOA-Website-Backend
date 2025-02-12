@@ -14,7 +14,7 @@ mkdir -p "${DATA_DIR}"
 
 # Create the main "appdata" group if it does not exist
 if ! getent group "${GROUP_NAME}" >/dev/null 2>&1; then
-    addgroup -S -g "${DATA_GID}" "${GROUP_NAME}"
+    addgroup --no-backup -g "${DATA_GID}" "${GROUP_NAME}"
 fi
 
 # Create users with their own groups and add them to the shared group
@@ -24,16 +24,16 @@ for USER_INFO in ${USERS}; do
 
     # Create a group with the same GID as the user's UID (if it doesn’t exist)
     if ! getent group "${USER}" >/dev/null 2>&1; then
-        addgroup -S -g "${USER_UID}" "${USER}"
+        addgroup --no-backup  -g "${USER_UID}" "${USER}"
     fi
 
     # Create the user with the same UID and primary group
     if ! id "${USER}" >/dev/null 2>&1; then
-        adduser -S -H -u "${USER_UID}" -G "${USER}" "${USER}"
+        adduser  -H -u "${USER_UID}" -G "${USER}" "${USER}"
     fi
 
     # Ensure the user is added to the shared "appdata" group
-    addgroup "${USER}" "${GROUP_NAME}" || true
+    addgroup --no-backup "${USER}" "${GROUP_NAME}" || true
 done
 
 # Set the group ownership of the shared directory
