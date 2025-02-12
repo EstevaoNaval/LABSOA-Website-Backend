@@ -14,8 +14,9 @@ services:
         - USER=${DJANGO_API_USER}
         - UID=${DJANGO_API_UID}
         - GID=${DJANGO_API_GID}
-        - ENTRYPOINT_PATH=/src/scripts/docker-django-api-entrypoint.sh
     restart: unless-stopped
+    environment:
+      - ENTRYPOINT_PATH=/src/scripts/docker-django-api-entrypoint.sh
     volumes:
       - ${DATA_ROOT_DIR}:${DATA_ROOT_DIR}:rw
       - ./django-api-logs:/logs
@@ -38,7 +39,6 @@ services:
         - USER=${DJANGO_WORKER_USER}
         - UID=${DJANGO_WORKER_UID}
         - GID=${DJANGO_WORKER_GID}
-        - ENTRYPOINT_PATH=/src/scripts/docker-django-worker-entrypoint.sh
     restart: unless-stopped
     user: ${DJANGO_WORKER_UID}:${DJANGO_WORKER_GID}
     deploy:
@@ -52,6 +52,7 @@ services:
       - .env
     environment:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - ENTRYPOINT_PATH=/src/scripts/docker-django-worker-entrypoint.sh
     networks:
       - bridge-network
     depends_on:
@@ -71,7 +72,6 @@ services:
         - USER=${PDF2CHEMICALS_WORKER_USER}
         - UID=${PDF2CHEMICALS_WORKER_UID}
         - GID=${PDF2CHEMICALS_WORKER_GID}
-        - ENTRYPOINT_PATH=/src/scripts/docker-pdf2chemicals-worker-entrypoint.sh
     restart: unless-stopped
     user: ${PDF2CHEMICALS_WORKER_UID}:${PDF2CHEMICALS_WORKER_GID}
     hostname: ${PDF2CHEMICALS_WORKER_HOSTNAME}
@@ -99,6 +99,7 @@ services:
     env_file:
       - .env
     environment:
+      - ENTRYPOINT_PATH=/src/scripts/docker-pdf2chemicals-worker-entrypoint.sh
       - TORQUE_HOME=${TORQUE_HOME}
       - TORQUE_SERVER=${TORQUE_SERVER}
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}

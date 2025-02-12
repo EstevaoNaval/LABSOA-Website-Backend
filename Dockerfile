@@ -22,7 +22,6 @@ FROM python:3.12-slim
 ARG USER
 ARG UID
 ARG GID
-ARG ENTRYPOINT_PATH
 
 # Criar usuário não root
 RUN addgroup --gid ${GID} ${USER} && \
@@ -47,8 +46,5 @@ ENV PYTHONUNBUFFERED=1
 
 USER ${USER}
 
-# Permissão para script de entrada
-RUN chmod +x ${ENTRYPOINT_PATH}
-
 # Definir o script de entrada
-ENTRYPOINT ["/bin/sh", "-c", "$ENTRYPOINT_PATH"]
+ENTRYPOINT ["/bin/sh", "-c", "chmod +x ${ENTRYPOINT_PATH} && exec ${ENTRYPOINT_PATH}"]
