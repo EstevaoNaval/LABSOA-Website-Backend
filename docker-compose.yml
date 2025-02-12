@@ -7,10 +7,10 @@ services:
     volumes:
       - ${DATA_ROOT_DIR}:${DATA_ROOT_DIR}
       - ./scripts/set-permissions.sh:/scripts/set-permissions.sh
-      - /etc/passwd:/etc/passwd # Permite modificar usuários do host
-      - /etc/group:/etc/group # Permite modificar grupos do host
-      - /etc/shadow:/etc/shadow # Necessário para criar usuários corretamente
-      - /etc/gshadow:/etc/gshadow # Para grupos de usuários
+      - /etc/passwd:/etc/passwd:rw # Permite modificar usuários do host
+      - /etc/group:/etc/group:rw # Permite modificar grupos do host
+      - /etc/shadow:/etc/shadow:rw # Necessário para criar usuários corretamente
+      - /etc/gshadow:/etc/gshadow:rw # Para grupos de usuários
     env_file:
       - .env
     user: root
