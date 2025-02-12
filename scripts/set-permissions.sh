@@ -12,6 +12,7 @@ fi
 # Create the main "appdata" group if it does not exist
 if ! getent group "${GROUP_NAME}" >/dev/null 2>&1; then
     addgroup -g "${DATA_GID}" "${GROUP_NAME}"
+fi
 
 # Create users with their own groups and add them to the shared group
 for USER_INFO in ${USERS}; do
