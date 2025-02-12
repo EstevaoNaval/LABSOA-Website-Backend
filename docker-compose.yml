@@ -29,7 +29,6 @@ services:
       - db
       - rabbitmq
       - redis
-      - set-permissions
 
   django-worker:
     build:
@@ -57,7 +56,6 @@ services:
       - bridge-network
     depends_on:
       - rabbitmq
-      - set-permissions
     logging:
       driver: "json-file" # Default logging driver
       options:
@@ -108,7 +106,6 @@ services:
       - LD_LIBRARY_PATH=${TORQUE_HOME}/lib:$LD_LIBRARY_PATH
     depends_on:
       - rabbitmq
-      - set-permissions
     logging:
       driver: "json-file" # Default logging driver
       options:
