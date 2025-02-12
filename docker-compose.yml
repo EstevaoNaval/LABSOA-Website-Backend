@@ -6,14 +6,14 @@ services:
         limits:
           cpus: "1"
           memory: "0.6G"
-    user: ${DJANGO_API_UID}:${DJANGO_API_GID}
+    user: ${DJANGO_API_UID}:${DATA_GID}
     build:
       context: .
       dockerfile: Dockerfile
       args:
         - USER=${DJANGO_API_USER}
         - UID=${DJANGO_API_UID}
-        - GID=${DJANGO_API_GID}
+        - GID=${DATA_GID}
     restart: unless-stopped
     environment:
       - ENTRYPOINT_PATH=/src/scripts/docker-django-api-entrypoint.sh
@@ -38,9 +38,9 @@ services:
       args:
         - USER=${DJANGO_WORKER_USER}
         - UID=${DJANGO_WORKER_UID}
-        - GID=${DJANGO_WORKER_GID}
+        - GID=${DATA_GID}
     restart: unless-stopped
-    user: ${DJANGO_WORKER_UID}:${DJANGO_WORKER_GID}
+    user: ${DJANGO_WORKER_UID}:${DATA_GID}
     deploy:
       resources:
         limits:
@@ -71,9 +71,9 @@ services:
       args:
         - USER=${PDF2CHEMICALS_WORKER_USER}
         - UID=${PDF2CHEMICALS_WORKER_UID}
-        - GID=${PDF2CHEMICALS_WORKER_GID}
+        - GID=${DATA_GID}
     restart: unless-stopped
-    user: ${PDF2CHEMICALS_WORKER_UID}:${PDF2CHEMICALS_WORKER_GID}
+    user: ${PDF2CHEMICALS_WORKER_UID}:${DATA_GID}
     hostname: ${PDF2CHEMICALS_WORKER_HOSTNAME}
     deploy:
       resources:
