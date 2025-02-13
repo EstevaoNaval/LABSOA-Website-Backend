@@ -111,5 +111,9 @@ cython_debug/
 # Dependency directories
 node_modules/
 
+# Media directory
+data/
+media/
+
 # VS Code
 .vscode

@@ -1,0 +1,25 @@
+Wed Feb 12 23:30:01 2025       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 510.73.05    Driver Version: 510.73.05    CUDA Version: 11.6     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  NVIDIA GeForce ...  Off  | 00000000:05:00.0 Off |                  N/A |
+|  0%   36C    P8     8W / 170W |     14MiB / 12288MiB |      0%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
+|    0   N/A  N/A      1308      G   /usr/lib/xorg/Xorg                  9MiB |
+|    0   N/A  N/A      1477      G   /usr/bin/gnome-shell                3MiB |
++-----------------------------------------------------------------------------+
+WARNING: sun.reflect.Reflection.getCallerClass is not supported. This will impact performance.
+Temporary directory created: /tmp/tmpfr3xz1_v
+Importing necessary libraries...
+This operation may take a few minutes. How about a coffee? :)
