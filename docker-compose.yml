@@ -73,7 +73,6 @@ services:
         - UID=${PDF2CHEMICALS_WORKER_UID}
         - GID=${DATA_GID}
     restart: unless-stopped
-    user: ${PDF2CHEMICALS_WORKER_UID}:${DATA_GID}
     hostname: ${PDF2CHEMICALS_WORKER_HOSTNAME}
     deploy:
       resources:

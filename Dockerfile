@@ -6,10 +6,7 @@ WORKDIR /src
 
 # Set environment variables to optimize Python
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1 
-
-# Instalar dependências do sistema (caso necessário)
-# RUN apt-get update && apt-get install -y build-essential
+ENV PYTHONUNBUFFERED=1
 
 # Atualizar pip e instalar as dependências do Django
 RUN pip install --upgrade pip
@@ -22,6 +19,11 @@ FROM python:3.12-slim
 ARG USER
 ARG UID
 ARG GID
+
+# Instalar dependências do sistema (caso necessário)
+RUN apt-get update && \
+apt-get install -y gosu && \
+rm -rf /var/lib/apt/lists/*
 
 # Criar usuário não root
 RUN addgroup --gid ${GID} ${USER} && \
@@ -42,9 +44,7 @@ COPY --chown=${USER}:${USER} . .
 
 # Set environment variables to optimize Python
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1 
-
-USER ${USER}
+ENV PYTHONUNBUFFERED=1
 
 # Definir o script de entrada
 ENTRYPOINT ["/bin/sh", "-c", "chmod +x ${ENTRYPOINT_PATH} && exec ${ENTRYPOINT_PATH}"]
