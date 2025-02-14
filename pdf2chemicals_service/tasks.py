@@ -122,6 +122,7 @@ def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
     )
     
     if not file_exists(script_path):
+        cluster_node_manager.mark_node_as_free(node_name)
         raise FileExistsError(f"PBS/TORQUE script file {script_path} not found.")
     
     if not cluster_node_manager.is_node_reservation_valid(node_name, reservation_id):
@@ -140,6 +141,8 @@ def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
     )
     
     if result.returncode != 0:
+        remove_file(script_path)
+        cluster_node_manager.mark_node_as_free(node_name)
         raise subprocess.CalledProcessError('Job was not received in the HPC cluster.')
     
     job_id = result.stdout.strip()
@@ -150,7 +153,7 @@ def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
         'node_name': node_name, 
         'json_path': json_path
     } 
-    
+
 @shared_task(
     base=ChainedTask,
     name='pdf2chemicals_service.tasks.pdf2chemicals_tasks_monitor_pdf2chemicals_job', 
