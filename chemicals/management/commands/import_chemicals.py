@@ -15,10 +15,12 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('csv_file', type=str, help='The path to the CSV file to be imported')
         parser.add_argument("--base-path", type=str, required=True, help='The base path for the chemicals conformations')
+        parser.add_argument("--user-email", type=str, required=True, help='Registered user email')
 
     def handle(self, *args, **options):
         csv_file = options['csv_file']
         chem_confs_base_path = options['base_path']
+        user_email = options['user-email']
         logger = logging.getLogger('django')
         
         CHEMICAL_CONFS_FILE_FORMAT = 'sdf'
@@ -44,7 +46,7 @@ class Command(BaseCommand):
                                 }
                             )
                         
-                        user = User.objects.get(email='carlos.costa@gmail.com')
+                        user = User.objects.get(email=user_email)
                         
                         chemical_depiction_image_base_file_path = os.path.join(chem_confs_base_path, row.get('id'))
                         depiction_files = find_files(chemical_depiction_image_base_file_path, CHEMICAL_DEPICTION_IMAGE_FILE_FORMAT)
@@ -54,8 +56,6 @@ class Command(BaseCommand):
                                 chemical = Chemical.objects.create(chem_depiction_image=File(depiction_file, name=depiction_filename), user=user)
                                 if literature:
                                     chemical.literature.set([literature])
-                        
-                        print(chemical)
                         
                         Identifier.objects.update_or_create(
                             chemical=chemical,

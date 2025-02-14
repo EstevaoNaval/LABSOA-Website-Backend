@@ -4,6 +4,7 @@ from datetime import datetime
 import redis
 from typing import List
 from random import choice
+import uuid
 
 from django.conf import settings
 
@@ -54,20 +55,26 @@ class ClusterNodeManager:
         
         return nodes
 
-    def mark_node_as_busy(self, node_name: str, job_id: str):
+    def mark_node_as_busy(self, node_name: str):
         """Marca um nó como ocupado por um job específico"""
         key = f"cluster:node:{node_name}"
         
+        reservation_id = uuid.uuid4().hex
+        
         self.redis_client.hset(key, mapping={
-            'job_id': job_id,
-            'timestamp': datetime.now().isoformat(),
-            'status': 'busy'
+            'reservation_id': reservation_id,
+            'timestamp': datetime.now().isoformat()
         })
+        
+        return reservation_id
 
     def mark_node_as_free(self, node_name: str):
         """Marca um nó como livre"""
         key = f"cluster:node:{node_name}"
         self.redis_client.delete(key)
+
+    def get_reservation_id_from_node_name(self, node_name: str) -> str:
+        return self.redis_client.hget(f"cluster:node:{node_name}", "reservation_id")
 
     def get_free_gpu_node(self) -> str:
         """Obtém um nó livre com GPU, considerando os nós já em uso por outros workers"""
@@ -79,8 +86,19 @@ class ClusterNodeManager:
             if not self.redis_client.exists(f"cluster:node:{node}")
         ]
         
-        return choice(free_nodes) if free_nodes else ''
+        return choice(free_nodes) if free_nodes else ""
 
+    def is_node_reservation_valid(self, node_name: str, reservation_id: str):
+        return True if self.redis_client.hget(f"cluster:node:{node_name}", "reservation_id") == reservation_id else False
+
+    def reserve_free_gpu_node(self) -> str:
+        free_gpu_node = self.get_free_gpu_node()
+        
+        if free_gpu_node != "":
+            self.mark_node_as_busy(node_name=free_gpu_node)
+            
+        return free_gpu_node
+    
     def cleanup_stale_nodes(self, max_age_hours: int = 2):
         """Limpa registros antigos de nós ocupados"""
         threshold = datetime.now().timestamp() - (max_age_hours * 3600)
@@ -139,7 +157,7 @@ def generate_script_name(base_name="pbs_script") -> str:
     return f"{base_name}_{random_suffix}.pbs"
 
 # Function to save the generated script in the media directory
-def save_script(script_content, script_name):
+def save_script(script_content):
     """
     Saves the PBS script content to a file inside MEDIA_ROOT.
     
@@ -150,6 +168,9 @@ def save_script(script_content, script_name):
     # Directory to save PBS scripts
     pbs_scripts_dir = os.path.join(settings.MEDIA_ROOT, 'pbs_scripts')
     
+    # Generate the script name with a random suffix
+    script_name = generate_script_name()
+    
     # Ensure the directory exists, otherwise create it
     os.makedirs(pbs_scripts_dir, exist_ok=True)
 
@@ -159,8 +180,6 @@ def save_script(script_content, script_name):
     # Save the script to the file
     with open(script_path, 'w') as file:
         file.write(script_content)
-    
-    print(f"Script saved as: {script_path}")
     
     return script_path 
 
@@ -185,9 +204,6 @@ def generate_pbs_script(pdf_path, output_dir, json_prefix, node_name):
 
     job_id = generate_random_alphanumeric_sequence(JOB_ID_SIZE)
 
-    # Generate the script name with a random suffix
-    script_name = generate_script_name()
-
     template_path = get_pdf2chemicals_pbs_template_path()
 
     pdf2chemicals_path = get_pdf2chemicals_path()
@@ -206,7 +222,7 @@ def generate_pbs_script(pdf_path, output_dir, json_prefix, node_name):
     )
 
     # Save the generated script in the media directory
-    script_path = save_script(script_content, script_name)
+    script_path = save_script(script_content)
     
     return script_path
 

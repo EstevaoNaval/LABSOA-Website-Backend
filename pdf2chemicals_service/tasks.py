@@ -11,7 +11,7 @@ from user.models import User
 from pdf2chemicals_service.util.util import generate_random_alphanumeric_sequence
 from chemicals.tasks import post_chemical
 
-from .util.util import file_exists
+from .util.util import file_exists, remove_file
 from .cluster import (
     ResourceUnavailable,
     ClusterNodeManager, 
@@ -107,10 +107,12 @@ def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
     
     cluster_node_manager = ClusterNodeManager()
     
-    node_name = cluster_node_manager.get_free_gpu_node()
+    node_name = cluster_node_manager.reserve_free_gpu_node()
     
     if node_name == '':
         raise ResourceUnavailable("No pbs node is available at the moment.")
+    
+    reservation_id = cluster_node_manager.get_reservation_id_from_node_name(node_name)
     
     script_path = generate_pbs_script(
         pdf_path=absolute_pdf_path,
@@ -119,6 +121,14 @@ def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
         node_name=node_name
     )
     
+    if not file_exists(script_path):
+        raise FileExistsError(f"PBS/TORQUE script file {script_path} not found.")
+    
+    if not cluster_node_manager.is_node_reservation_valid(node_name, reservation_id):
+        remove_file(script_path)
+        raise KeyError("Cluster node reservation id is invalid.")
+    
+    # Opens a subshell to navigate to TORQUE user's home directory and runs the PBS/TORQUE script, from there, via qsub.
     cmd = f'sh -c "(cd {os.getenv("TORQUE_USER_HOME")} && {os.getenv("TORQUE_HOME")}/bin/qsub {script_path})"'
     
     result = subprocess.run(
@@ -134,9 +144,8 @@ def send_pdf2chemicals_hpc_task(self, *args, **kwargs):
     
     job_id = result.stdout.strip()
     
-    cluster_node_manager.mark_node_as_busy(node_name, job_id)
-    
     return {
+        'pbs_script_path': script_path,
         'job_id': job_id, 
         'node_name': node_name, 
         'json_path': json_path
@@ -158,8 +167,6 @@ def monitor_pdf2chemicals_job(self, *args, **kwargs):
     """
     Task to monitor the directory and detect the JSON file.
     """
-    print(kwargs)
-    
     if not is_pbs_job_completed(kwargs['job_id']):
         self.retry()
     
@@ -167,12 +174,14 @@ def monitor_pdf2chemicals_job(self, *args, **kwargs):
     
     cluster_node_manager.mark_node_as_free(kwargs['node_name'])
     
+    remove_file(kwargs['pbs_script_path'])
+    
     if file_exists(kwargs['json_path']):
         return {
             'json_path': kwargs['json_path']
         }
     
-    raise FileExistsError("Json file not found. HPC cluster job executed unsuccessfully.")
+    raise FileExistsError("Json file not found. PBS/TORQUE cluster job executed unsuccessfully.")
     
 @shared_task(
     base=ChainedTask,
@@ -190,6 +199,6 @@ def load_chemical_from_json(self, *args, **kwargs):
     with open(kwargs['json_path'], mode='r') as json_file:
         chemical_list = json.load(json_file)
     
-    print("OK! Deu tudo certo no load!")
+    remove_file(kwargs['json_path'])
     
     return chemical_list
